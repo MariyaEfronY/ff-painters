@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import API from "../utils/axios";
-
+import API from '../utils/axios';
 
 const PainterDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -9,7 +8,8 @@ const PainterDashboard = () => {
     const fetchPainter = async () => {
       try {
         const res = await API.get('/painter/profile');
-        setProfile(res.data);
+        console.log('✅ Response:', res.data); // Confirm here
+        setProfile(res.data.painter); // ✅ direct set
       } catch (err) {
         console.error('Error fetching profile:', err);
         alert(err.response?.data?.message || 'Failed to fetch profile');
@@ -21,10 +21,31 @@ const PainterDashboard = () => {
 
   if (!profile) return <p>Loading profile...</p>;
 
+  const profileImageUrl = profile.profileImage
+    ? `http://localhost:5000/uploads/${profile.profileImage}`
+    : null;
+
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>Welcome, {profile.name}</h2>
       <p>Email: {profile.email}</p>
+
+      {profileImageUrl ? (
+        <img
+          src={profileImageUrl}
+          alt="Profile"
+          style={{
+            width: '150px',
+            height: '150px',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            border: '2px solid #ddd',
+            marginTop: '10px'
+          }}
+        />
+      ) : (
+        <p>No profile image uploaded.</p>
+      )}
     </div>
   );
 };

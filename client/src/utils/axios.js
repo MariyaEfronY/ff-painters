@@ -1,13 +1,17 @@
+// utils/axios.js
 import axios from 'axios';
 
 const API = axios.create({
   baseURL: 'http://localhost:5000/api',
 });
 
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem('painterToken');
-  if (token) req.headers.Authorization = `Bearer ${token}`;
-  return req;
+// ✅ Fix the token key to match your login
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('painterToken'); // 🔁 FIXED HERE
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default API;

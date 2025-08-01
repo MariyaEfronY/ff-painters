@@ -24,12 +24,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Serve static image files from 'uploads' folder
-app.use('/uploads', express.static(path.join('uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes (✅ Ensure unique base paths to avoid overlap)
-app.use('/api/painter', painterRoutes);         // Handles login, signup, profile, etc.
-app.use('/api/painter', painterImageRoutes);     // Handles profile image and gallery
-app.use('/api/bookings', bookingRoutes);         // Handles customer bookings
+app.use('/api/painter', painterRoutes);
+app.use('/api/painter/images', painterImageRoutes); 
+app.use('/api/bookings', bookingRoutes);       
+
+
+process.on('uncaughtException', (err) => {
+  console.error('Unhandled Exception:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
+
+
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
