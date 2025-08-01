@@ -10,6 +10,7 @@ import {
   uploadProfileImage
 } from '../controllers/painterController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+// const { getPainterProfile } = require('../controllers/painterController');
 
 const router = express.Router();
 
