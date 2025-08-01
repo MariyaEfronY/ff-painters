@@ -6,50 +6,64 @@ import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
 
+// Token generator
+const createToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+};
+
+// Signup Controller
 export const painterSignup = async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  const existing = await Painter.findOne({ email });
-  if (existing) return res.status(400).json({ message: 'Email already in use' });
+    const existing = await Painter.findOne({ email });
+    if (existing) return res.status(400).json({ message: 'Email already in use' });
 
-  const hashed = await bcrypt.hash(password, 10);
-  const painter = new Painter({ name, email, password: hashed });
+    const hashed = await bcrypt.hash(password, 10);
+    const painter = new Painter({ name, email, password: hashed });
 
-  await painter.save();
-  res.status(201).json({ message: 'Signup successful' });
+    await painter.save();
+
+    const token = createToken(painter._id); // Generate JWT
+    res.status(201).json({ message: 'Signup successful', token, painter });
+  } catch (error) {
+    console.error('Signup Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
+// Login Controller
 export const painterLogin = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const painter = await Painter.findOne({ email });
-  if (!painter) return res.status(404).json({ message: 'User not found' });
+    const painter = await Painter.findOne({ email });
+    if (!painter) return res.status(404).json({ message: 'User not found' });
 
-  const isMatch = await bcrypt.compare(password, painter.password);
-  if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    const isMatch = await bcrypt.compare(password, painter.password);
+    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
-  const token = jwt.sign({ id: painter._id }, 'secret', { expiresIn: '1d' });
+    const token = createToken(painter._id); // Secure token using secret
 
-  res.json({ message: 'Login successful', token, painter });
+    res.status(200).json({ message: 'Login successful', token, painter });
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
-
 
 
 // Get painter profile
 export const getPainterProfile = async (req, res) => {
-  console.log("req.user from token:", req.user); // ✅ Debug
-
   try {
-    const painter = await Painter.findById(req.user.id); // ✅ Ensure this ID exists
-    if (!painter) {
-      return res.status(404).json({ error: 'Painter not found' });
-    }
+    const painter = await Painter.findById(req.user.id).select('-password');
     res.status(200).json(painter);
   } catch (error) {
     console.error('Error getting painter profile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 
 // Update painter profile

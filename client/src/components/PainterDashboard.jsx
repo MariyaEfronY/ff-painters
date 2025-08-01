@@ -11,33 +11,43 @@ const PainterDashboard = () => {
   const [painter, setPainter] = useState(null);
   const [previewImage, setPreviewImage] = useState(null); // For real-time preview
 
+  // 🟢 Fetch painter profile securely
   useEffect(() => {
     const fetchPainter = async () => {
-      const token = localStorage.getItem('painterToken');
+      const token = localStorage.getItem('painterToken'); // Make sure this matches what you stored during login
+
       if (!token) {
-        console.log("No token found");
+        console.error('❌ No token found in localStorage');
         return;
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/painter/profile', {
+        const response = await fetch('http://localhost:5000/api/painter/profile', {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
-        setPainter(res.data);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch profile');
+        }
+
+        console.log("✅ Painter profile fetched:", data);
+        setPainter(data);
       } catch (err) {
-        console.error("Failed to fetch painter profile:", err.response?.data || err.message);
+        console.error("❌ Error fetching painter profile:", err.message);
       }
     };
 
     fetchPainter();
   }, []);
 
-  const handleImagePreview = (file) => {
-    const reader = new FileReader();
-    reader.onloadend = () => setPreviewImage(reader.result);
-    if (file) reader.readAsDataURL(file);
+  const handleImagePreview = (imageUrl) => {
+    setPreviewImage(imageUrl);
   };
 
   if (!painter) return <div>Loading...</div>;
