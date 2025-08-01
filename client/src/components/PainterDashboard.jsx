@@ -1,90 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import EditProfile from './EditProfile';
-import UploadProfileImage from './UploadProfileImage';
-import GalleryUploader from './GalleryUploader';
-import GalleryDisplay from './GalleryDisplay';
-import PainterBookings from './PainterBookings';
-import LogoutButton from './LogoutButton';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const PainterDashboard = () => {
   const [painter, setPainter] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null); // For real-time preview
 
-  // 🟢 Fetch painter profile securely
-  useEffect(() => {
-    const fetchPainter = async () => {
-      const token = localStorage.getItem('painterToken'); // Make sure this matches what you stored during login
+ // PainterDashboard.jsx
+useEffect(() => {
+  const fetchPainter = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-      if (!token) {
-        console.error('❌ No token found in localStorage');
-        return;
-      }
+      const res = await axios.get("http://localhost:5000/api/painter/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      try {
-        const response = await fetch('http://localhost:5000/api/painter/profile', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to fetch profile');
-        }
-
-        console.log("✅ Painter profile fetched:", data);
-        setPainter(data);
-      } catch (err) {
-        console.error("❌ Error fetching painter profile:", err.message);
-      }
-    };
-
-    fetchPainter();
-  }, []);
-
-  const handleImagePreview = (imageUrl) => {
-    setPreviewImage(imageUrl);
+      setPainter(res.data);
+    } catch (err) {
+      console.error("❌ Error from server:", err?.response?.data?.message || err.message);
+    }
   };
 
-  if (!painter) return <div>Loading...</div>;
+  fetchPainter();
+}, []);
+
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Welcome, {painter.name}</h2>
-
-      <div style={{
-        display: 'flex',
-        gap: '20px',
-        alignItems: 'center',
-        marginBottom: '30px',
-      }}>
-        <img
-          src={`http://localhost:5000/uploads/${painter.profileImage}`}
-          alt="Profile"
-          width="150"
-          height="150"
-          style={{
-            borderRadius: '50%',
-            objectFit: 'cover',
-            border: '3px solid #333',
-          }}
-        />
+    <div>
+      <h2>Painter Dashboard</h2>
+      {painter ? (
         <div>
-          <p><strong>Name:</strong> {painter.name}</p>
-          <p><strong>Email:</strong> {painter.email}</p>
+          <p>Name: {painter.name}</p>
+          <p>Email: {painter.email}</p>
         </div>
-      </div>
-
-      <UploadProfileImage painterId={painter._id} onPreview={handleImagePreview} />
-      <EditProfile painter={painter} />
-      <GalleryUploader painterId={painter._id} />
-      <GalleryDisplay painterId={painter._id} />
-      <PainterBookings painterId={painter._id} />
-      <LogoutButton />
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
 };

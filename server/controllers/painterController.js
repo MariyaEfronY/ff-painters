@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
+import { createToken } from "../utils/createToken.js";
 
 // Token generator
 const createToken = (id) => {
@@ -21,10 +22,9 @@ export const painterSignup = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const painter = new Painter({ name, email, password: hashed });
-
     await painter.save();
 
-    const token = createToken(painter._id); // Generate JWT
+    const token = createToken(painter._id);
     res.status(201).json({ message: 'Signup successful', token, painter });
   } catch (error) {
     console.error('Signup Error:', error);
@@ -43,8 +43,7 @@ export const painterLogin = async (req, res) => {
     const isMatch = await bcrypt.compare(password, painter.password);
     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
-    const token = createToken(painter._id); // Secure token using secret
-
+    const token = createToken(painter._id);
     res.status(200).json({ message: 'Login successful', token, painter });
   } catch (error) {
     console.error('Login Error:', error);
@@ -53,16 +52,20 @@ export const painterLogin = async (req, res) => {
 };
 
 
+
 // Get painter profile
 export const getPainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.user.id).select('-password');
+    const painter = await Painter.findById(req.painterId).select("-password");
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
     res.status(200).json(painter);
   } catch (error) {
-    console.error('Error getting painter profile:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Fetch Painter Profile Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
