@@ -5,12 +5,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
-import { createToken } from "../utils/createToken.js";
+import createToken from '../utils/createToken.js';
 
-// Token generator
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
 
 // Signup Controller
 export const painterSignup = async (req, res) => {
@@ -51,20 +47,21 @@ export const painterLogin = async (req, res) => {
   }
 };
 
-
-
-// Get painter profile
+// Get profile
+// controllers/painterController.js
 export const getPainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.painterId).select("-password");
-    if (!painter) return res.status(404).json({ message: "Painter not found" });
-
+    const painter = await Painter.findById(req.painterId).select('-password');
+    if (!painter) {
+      return res.status(404).json({ message: 'Painter not found' });
+    }
     res.status(200).json(painter);
   } catch (error) {
-    console.error("Fetch Painter Profile Error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Profile fetch error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 
