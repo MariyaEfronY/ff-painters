@@ -20,9 +20,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post('/signup', painterSignup);
-router.post('/login', painterLogin);
+router.post('/auth/signup', painterSignup);
+router.post('/auth/login', painterLogin);
 router.get('/profile', authMiddleware, getPainterProfile);
+
+
+
 
 router.get('/gallery', authMiddleware, getPainterGallery);
 router.post('/gallery', authMiddleware, uploadGalleryImage);

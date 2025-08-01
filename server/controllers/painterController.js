@@ -37,8 +37,10 @@ export const painterLogin = async (req, res) => {
 
 // Get painter profile
 export const getPainterProfile = async (req, res) => {
+  console.log("req.user from token:", req.user); // ✅ Debug
+
   try {
-    const painter = await Painter.findById(req.params.id);
+    const painter = await Painter.findById(req.user.id); // ✅ Ensure this ID exists
     if (!painter) {
       return res.status(404).json({ error: 'Painter not found' });
     }
@@ -48,6 +50,7 @@ export const getPainterProfile = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 // Update painter profile
 export const updatePainterProfile = async (req, res) => {
