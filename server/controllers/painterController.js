@@ -1,7 +1,10 @@
+// server/controllers/painterController.js
 import Painter from '../models/Painter.js';
-import Booking from '../models/Booking.js'; 
+import Booking from '../models/Booking.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
 
 export const painterSignup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -32,47 +35,109 @@ export const painterLogin = async (req, res) => {
 
 
 
+// Get painter profile
 export const getPainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.userId);
+    const painter = await Painter.findById(req.params.id);
     if (!painter) {
-      return res.status(404).json({ message: 'Painter not found' });
+      return res.status(404).json({ error: 'Painter not found' });
     }
     res.status(200).json(painter);
   } catch (error) {
-    console.error('Error fetching painter profile:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error getting painter profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-
-// GET /api/painter/gallery
-export const getPainterGallery = async (req, res) => {
+// Update painter profile
+export const updatePainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.userId);
-    if (!painter) return res.status(404).json({ message: 'Painter not found' });
-
-    res.json(painter.gallery || []);
+    const painter = await Painter.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!painter) {
+      return res.status(404).json({ error: 'Painter not found' });
+    }
+    res.status(200).json(painter);
   } catch (error) {
-    console.error('Error fetching gallery:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error updating painter profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-// POST /api/painter/gallery
-export const uploadGalleryImage = async (req, res) => {
+// Upload profile image
+export const uploadProfileImage = async (req, res) => {
   try {
-    const { imageUrl, description } = req.body;
+    const painterId = req.params.id;
+    const profileImage = req.file.filename;
 
-    const painter = await Painter.findById(req.userId);
+    const painter = await Painter.findById(painterId);
     if (!painter) return res.status(404).json({ message: 'Painter not found' });
 
-    painter.gallery.push({ imageUrl, description });
+    // 🧹 Optional cleanup: delete old image
+    if (painter.profileImage) {
+      const oldPath = path.join('uploads', painter.profileImage);
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+
+    painter.profileImage = profileImage;
     await painter.save();
 
-    res.json({ message: 'Image uploaded successfully' });
+    res.status(200).json({ message: 'Profile image updated', profileImage });
   } catch (error) {
-    console.error('Error uploading image:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Image upload error:', error);
+    res.status(500).json({ message: 'Server error uploading image' });
   }
 };
+
+// Upload gallery image
+export const uploadGalleryImage = async (req, res) => {
+  try {
+    const painterId = req.params.id;
+    const newImage = {
+      imageUrl: req.file.path,
+      description: req.body.description
+    };
+
+    const painter = await Painter.findById(painterId);
+    if (!painter) {
+      return res.status(404).json({ error: 'Painter not found' });
+    }
+
+    painter.gallery.push(newImage);
+    await painter.save();
+
+    res.status(201).json({ message: 'Gallery image uploaded', gallery: painter.gallery });
+  } catch (error) {
+    console.error('Error uploading gallery image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// ✅ THIS IS THE ONE YOU’RE MISSING!
+export const getPainterGallery = async (req, res) => {
+  try {
+    const painterId = req.params.id;
+    const painter = await Painter.findById(painterId);
+    if (!painter) {
+      return res.status(404).json({ error: 'Painter not found' });
+    }
+    res.status(200).json(painter.gallery);
+  } catch (error) {
+    console.error('Error getting gallery:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Bookings for painter
+export const getPainterBookings = async (req, res) => {
+  try {
+    const painterId = req.params.id;
+    const bookings = await Booking.find({ painterId });
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error('Error getting painter bookings:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+

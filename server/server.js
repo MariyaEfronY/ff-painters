@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 // Import routes
 import painterRoutes from './routes/painterRoutes.js'; 
 import painterImageRoutes from './routes/painterImageRoutes.js';
+
 import bookingRoutes from './routes/bookingRoutes.js';
 
 dotenv.config();
@@ -23,10 +24,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Serve static image files from 'uploads' folder
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join('uploads')));
 
 // API Routes (✅ Ensure unique base paths to avoid overlap)
-app.use('/api/painter', painterRoutes);          // Handles login, signup, profile, etc.
+app.use('/api/painter', painterRoutes);         // Handles login, signup, profile, etc.
 app.use('/api/painter', painterImageRoutes);     // Handles profile image and gallery
 app.use('/api/bookings', bookingRoutes);         // Handles customer bookings
 
