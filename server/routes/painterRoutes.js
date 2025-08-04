@@ -7,7 +7,8 @@ import {
   getPainterProfile,
   getPainterGallery,
   uploadGalleryImage,
-  uploadProfileImage
+  uploadProfileImage,
+  updatePainterProfile 
 } from '../controllers/painterController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import verifyToken from "../middleware/verifyToken.js";
@@ -52,6 +53,9 @@ router.get('/profile', verifyToken, async (req, res) => {
 
 router.get('/gallery', authMiddleware, getPainterGallery);
 router.post('/gallery', authMiddleware, uploadGalleryImage);
+// Update painter profile info
+router.put('/:id/update', updatePainterProfile);
+
 
 // Upload or update profile image
 router.post('/upload-profile/:id', upload.single('profileImage'), uploadProfileImage);

@@ -10,7 +10,7 @@ import {
 
 
 // Create a new booking
-router.post('/', createBooking);
+router.post('/', createBooking);  
 
 // Get bookings for a painter
 router.get('/painter/:painterId', getPainterBookings);

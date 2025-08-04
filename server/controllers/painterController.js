@@ -57,7 +57,7 @@ export const getPainterProfile = async (req, res) => {
     }
 
     console.log('✅ Painter data found:', painter);
-    res.status(200).json({ painter }); // not wrapped in { painter: painter }
+    res.status(200).json(painter);
   } catch (err) {
     console.error('❌ Error in getPainterProfile:', err.message);
     res.status(500).json({ message: 'Server error' });
@@ -65,24 +65,6 @@ export const getPainterProfile = async (req, res) => {
 };
 
 
-
-
-
-
-
-// Update painter profile
-export const updatePainterProfile = async (req, res) => {
-  try {
-    const painter = await Painter.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!painter) {
-      return res.status(404).json({ error: 'Painter not found' });
-    }
-    res.status(200).json(painter);
-  } catch (error) {
-    console.error('Error updating painter profile:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
 
 // Upload profile image
 export const uploadProfileImage = async (req, res) => {
@@ -160,5 +142,45 @@ export const getPainterBookings = async (req, res) => {
   }
 };
 
+
+// ✅ KEEP THIS ONE
+export const updatePainterProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      phoneNumber,
+      workExperience,
+      city,
+      bio,
+      specification,
+    } = req.body;
+
+    const updateData = {
+      name,
+      phoneNumber,
+      workExperience,
+      city,
+      bio,
+      specification,
+    };
+
+   const painterId = req.painterId;
+const updatedPainter = await Painter.findByIdAndUpdate(painterId, updateData, {
+  new: true,
+  runValidators: true,
+});
+
+
+    if (!updatedPainter) {
+      return res.status(404).json({ message: 'Painter not found' });
+    }
+
+    res.status(200).json({ message: 'Profile updated successfully', painter: updatedPainter });
+  } catch (error) {
+    console.error('❌ Error updating profile:', error.message);
+    res.status(500).json({ message: 'Server error while updating profile' });
+  }
+};
 
 

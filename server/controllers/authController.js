@@ -45,3 +45,20 @@ export const login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+};
+
+export const loginPainter = async (req, res) => {
+  const { email, password } = req.body;
+  const painter = await Painter.findOne({ email });
+
+  if (!painter || painter.password !== password) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  const token = generateToken(painter._id); // ✅ Correct token creation
+  res.status(200).json({ token });
+};

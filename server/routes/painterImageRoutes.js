@@ -3,6 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import Painter from '../models/Painter.js'; // ✅ Model import
 
+
 const router = express.Router();
 
 // Multer config

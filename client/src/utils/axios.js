@@ -5,9 +5,9 @@ const API = axios.create({
   baseURL: 'http://localhost:5000/api',
 });
 
-// ✅ Fix the token key to match your login
+// ✅ Use the same key you used when storing the token
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('painterToken'); // 🔁 FIXED HERE
+  const token = localStorage.getItem('painterToken'); // FIXED HERE
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
