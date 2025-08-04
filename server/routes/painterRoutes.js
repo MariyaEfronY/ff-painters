@@ -11,18 +11,13 @@ import {
 } from '../controllers/painterController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import verifyToken from "../middleware/verifyToken.js";
+import Painter from '../models/Painter.js';
 
 
 
 const router = express.Router();
 
-router.get("/profile", verifyToken, async (req, res) => {
-  try {
-    res.json({ painter: req.painter });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+
 
 // Multer setup for profile image
 const storage = multer.diskStorage({
@@ -34,7 +29,23 @@ const upload = multer({ storage });
 router.post('/auth/signup', painterSignup);
 router.post('/auth/login', painterLogin);
 // Protected Route
-router.get('/profile', verifyToken, getPainterProfile);
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    console.log("✅ Token verified. Painter ID from token:", req.painterId);
+
+    const painter = await Painter.findById(req.painterId);
+    if (!painter) {
+      console.log("❌ Painter not found in DB.");
+      return res.status(404).json({ message: "Painter not found" });
+    }
+
+    console.log("🎨 Painter profile found:", painter);
+    res.json(painter);
+  } catch (error) {
+    console.error("❌ Error fetching profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 

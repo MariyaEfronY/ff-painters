@@ -8,8 +8,8 @@ const PainterDashboard = () => {
     const fetchPainter = async () => {
       try {
         const res = await API.get('/painter/profile');
-        console.log('✅ Response:', res.data); // Confirm here
-        setProfile(res.data.painter); // ✅ direct set
+        console.log("✅ Painter Response:", res.data);
+        setProfile(res.data);
       } catch (err) {
         console.error('Error fetching profile:', err);
         alert(err.response?.data?.message || 'Failed to fetch profile');
@@ -22,7 +22,7 @@ const PainterDashboard = () => {
   if (!profile) return <p>Loading profile...</p>;
 
   const profileImageUrl = profile.profileImage
-    ? `http://localhost:5000/uploads/${profile.profileImage}`
+    ? `http://localhost:5000${profile.profileImage}`
     : null;
 
   return (
