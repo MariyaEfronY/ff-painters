@@ -50,8 +50,8 @@ export const painterLogin = async (req, res) => {
 // painterController.js
 export const getPainterProfile = async (req, res) => {
   try {
-    console.log('🔍 Looking up painter by ID:', req.painterId);
-    const painter = await Painter.findById(req.painterId).select('-password');
+    console.log('🔍 Looking up painter by ID:', req.user._id);
+    const painter = await Painter.findById(req.user._id).select('-password');
     if (!painter) {
       return res.status(404).json({ message: 'Painter not found' });
     }
@@ -63,6 +63,7 @@ export const getPainterProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 
