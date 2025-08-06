@@ -12,7 +12,7 @@ const Login = () => {
       const response = await axios.post('http://localhost:5000/api/painter/auth/login', form);
 
       // ✅ Save the correct token and painterId
-      localStorage.setItem('painterId', response.data.painterId);  // updated key
+      localStorage.setItem('painterId', response.data.painter._id);  // ✅ correct
       localStorage.setItem('painterToken', response.data.token);
 
       // Navigate to dashboard

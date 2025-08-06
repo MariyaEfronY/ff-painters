@@ -1,4 +1,3 @@
-// server/routes/painterRoutes.js
 import express from 'express';
 import multer from 'multer';
 import {
@@ -11,16 +10,11 @@ import {
   updatePainterProfile 
 } from '../controllers/painterController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import verifyToken from "../middleware/verifyToken.js";
 import Painter from '../models/Painter.js';
-
-
 
 const router = express.Router();
 
-
-
-// Multer setup for profile image
+// Multer setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
@@ -29,39 +23,18 @@ const upload = multer({ storage });
 
 router.post('/auth/signup', painterSignup);
 router.post('/auth/login', painterLogin);
-// Protected Route
-router.get('/profile', verifyToken, async (req, res) => {
-  try {
-    console.log("✅ Token verified. Painter ID from token:", req.painterId);
 
-    const painter = await Painter.findById(req.painterId);
-    if (!painter) {
-      console.log("❌ Painter not found in DB.");
-      return res.status(404).json({ message: "Painter not found" });
-    }
+// ✅ GET painter profile
+router.get('/profile', authMiddleware, getPainterProfile);
 
-    console.log("🎨 Painter profile found:", painter);
-    res.json(painter);
-  } catch (error) {
-    console.error("❌ Error fetching profile:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// ✅ PUT (update) profile info + image
+router.put('/profile', authMiddleware, upload.single('profileImage'), updatePainterProfile);
 
+// ✅ Gallery routes
+router.get('/gallery/:id', getPainterGallery);
+router.post('/gallery/:id', upload.single('image'), uploadGalleryImage);
 
-
-
-router.get('/gallery', authMiddleware, getPainterGallery);
-router.post('/gallery', authMiddleware, uploadGalleryImage);
-// Update painter profile info
-// Update painter profile
-router.put('/profile/update', verifyToken, updatePainterProfile);
-
-
-
-
-
-// Upload or update profile image
+// ✅ Upload profile image separately (optional)
 router.post('/upload-profile/:id', upload.single('profileImage'), uploadProfileImage);
 
 export default router;

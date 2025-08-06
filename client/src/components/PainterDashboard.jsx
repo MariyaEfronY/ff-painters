@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import API from '../utils/axios';
+import axios from 'axios';
 import PainterEditForm from '../components/PainterEditForm';
 
 const PainterDashboard = () => {
@@ -7,17 +7,15 @@ const PainterDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchPainter = async () => {
-    try {
-      setLoading(true);
-      const res = await API.get('/painter/profile');
-      setProfile(res.data);
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-      alert(err.response?.data?.message || 'Failed to fetch profile');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const id = localStorage.getItem('painterId');
+    const response = await axios.get(`http://localhost:5000/api/painter/profile?id=${id}`);
+    setPainter(response.data); // assuming you're storing it in state
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+  }
+};
+
 
   useEffect(() => {
     fetchPainter();
@@ -40,9 +38,7 @@ const PainterDashboard = () => {
       <p>Bio: {profile.bio || 'N/A'}</p>
       <p>
         Specification:{' '}
-        {profile.specification?.length
-          ? profile.specification.join(', ')
-          : 'None'}
+        {profile.specification?.length ? profile.specification.join(', ') : 'None'}
       </p>
 
       {profileImageUrl ? (
@@ -70,7 +66,10 @@ const PainterDashboard = () => {
 
       <h3>Edit Your Profile</h3>
 
-      <PainterEditForm painterId={profile._id} onProfileUpdated={fetchPainter} />
+      <PainterEditForm
+        painterId={profile._id}
+        onProfileUpdated={fetchPainter}
+      />
     </div>
   );
 };

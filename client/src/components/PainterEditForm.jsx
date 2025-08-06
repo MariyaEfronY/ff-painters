@@ -60,32 +60,44 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+  e.preventDefault();
+  setSubmitting(true);
 
-    if (!formData.phoneNumber || !formData.bio) {
-      toast.error('❌ Phone number and bio are required.');
-      setSubmitting(false);
-      return;
-    }
+  const dataToSend = new FormData();
+  dataToSend.append('profileImage', formData.profileImage);
+  dataToSend.append('name', formData.name);
+  dataToSend.append('phoneNumber', formData.phoneNumber);
+  dataToSend.append('workExperience', formData.workExperience);
+  dataToSend.append('city', formData.city);
+  dataToSend.append('bio', formData.bio);
+  dataToSend.append('specification', JSON.stringify(formData.specification));
 
-    try {
-      await API.put('/painter/profile/update', formData);
-      toast.success('✅ Profile updated successfully!');
-      if (onProfileUpdated) onProfileUpdated(); // ✅ Refresh dashboard data
-    } catch (err) {
-      console.error('❌ Error updating profile:', err);
-      toast.error('❌ Error updating profile.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  try {
+    await API.put('/painter/profile', dataToSend);
+    toast.success('Profile updated!');
+    onProfileUpdated(); // Refresh dashboard
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    toast.error('Update failed.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   if (loading) return <p>Loading...</p>;
 
   return (
     <div className="edit-form">
       <form onSubmit={handleSubmit}>
+        <label>Profile Image</label>
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    setFormData((prev) => ({ ...prev, profileImage: e.target.files[0] }))
+  }
+/>
         <label>Name</label>
         <input name="name" value={formData.name} onChange={handleChange} required />
 

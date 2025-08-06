@@ -14,19 +14,29 @@ export const painterSignup = async (req, res) => {
     const { name, email, password } = req.body;
 
     const existing = await Painter.findOne({ email });
-    if (existing) return res.status(400).json({ message: 'Email already in use' });
+    if (existing) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
 
     const hashed = await bcrypt.hash(password, 10);
     const painter = new Painter({ name, email, password: hashed });
     await painter.save();
 
     const token = createToken(painter._id);
-    res.status(201).json({ message: 'Signup successful', token, painter });
+
+    // ✅ Return painterId explicitly
+    res.status(201).json({
+      message: 'Signup successful',
+      token,
+      painterId: painter._id,
+      painter,
+    });
   } catch (error) {
     console.error('Signup Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Login Controller
 export const painterLogin = async (req, res) => {
@@ -34,35 +44,59 @@ export const painterLogin = async (req, res) => {
     const { email, password } = req.body;
 
     const painter = await Painter.findOne({ email });
-    if (!painter) return res.status(404).json({ message: 'User not found' });
+    if (!painter) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     const isMatch = await bcrypt.compare(password, painter.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
     const token = createToken(painter._id);
-    res.status(200).json({ message: 'Login successful', token, painter });
+
+    // ✅ Return painterId explicitly
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      painterId: painter._id,
+      painter,
+    });
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// painterController.js
+
+// controllers/painterController.js
+// controller/painterController.js
+
 export const getPainterProfile = async (req, res) => {
   try {
-    console.log('🔍 Looking up painter by ID:', req.user._id);
-    const painter = await Painter.findById(req.user._id).select('-password');
+    const painterId = req.query.id;
+
+    if (!painterId) {
+      return res.status(400).json({ message: 'Painter ID is required' });
+    }
+
+    const painter = await Painter.findById(painterId);
+
     if (!painter) {
       return res.status(404).json({ message: 'Painter not found' });
     }
 
-    console.log('✅ Painter data found:', painter);
     res.status(200).json(painter);
-  } catch (err) {
-    console.error('❌ Error in getPainterProfile:', err.message);
+  } catch (error) {
+    console.error('❌ Error in getPainterProfile:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
+
+
 
 
 
@@ -145,42 +179,41 @@ export const getPainterBookings = async (req, res) => {
 };
 
 
-// ✅ KEEP THIS ONE
+// controllers/painterController.js
 export const updatePainterProfile = async (req, res) => {
   try {
-    const painterId = req.painterId; // from verifyToken middleware
-    const {
-      name,
-      phoneNumber,
-      workExperience,
-      city,
-      bio,
-      specification,
-    } = req.body;
+    const painterId = req.body.id;
+    if (!painterId) {
+      return res.status(400).json({ message: 'Painter ID is required' });
+    }
 
-    const updateData = {
-      name,
-      phoneNumber,
-      workExperience,
-      city,
-      bio,
-      specification,
-    };
-
-    const updatedPainter = await Painter.findByIdAndUpdate(painterId, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedPainter) {
+    const painter = await Painter.findById(painterId);
+    if (!painter) {
       return res.status(404).json({ message: 'Painter not found' });
     }
 
-    res.status(200).json({ message: 'Profile updated successfully', painter: updatedPainter });
+    const { name, phoneNumber, workExperience, city, bio, specification } = req.body;
+
+    painter.name = name || painter.name;
+    painter.phoneNumber = phoneNumber || painter.phoneNumber;
+    painter.workExperience = workExperience || painter.workExperience;
+    painter.city = city || painter.city;
+    painter.bio = bio || painter.bio;
+    painter.specification = specification || painter.specification;
+
+    if (req.file) {
+      painter.profileImage = req.file.filename;
+    }
+
+    const updated = await painter.save();
+    res.status(200).json(updated);
   } catch (error) {
-    console.error('❌ Error updating profile:', error.message);
-    res.status(500).json({ message: 'Server error while updating profile' });
+    console.error('❌ Error updating painter profile:', error.message);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
 
 
