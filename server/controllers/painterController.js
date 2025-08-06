@@ -50,7 +50,7 @@ export const painterLogin = async (req, res) => {
 // painterController.js
 export const getPainterProfile = async (req, res) => {
   try {
-   console.log('🔍 Looking up painter by ID:', req.painterId);
+    console.log('🔍 Looking up painter by ID:', req.painterId);
     const painter = await Painter.findById(req.painterId).select('-password');
     if (!painter) {
       return res.status(404).json({ message: 'Painter not found' });
@@ -63,6 +63,7 @@ export const getPainterProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 
@@ -146,7 +147,7 @@ export const getPainterBookings = async (req, res) => {
 // ✅ KEEP THIS ONE
 export const updatePainterProfile = async (req, res) => {
   try {
-    const { id } = req.params;
+    const painterId = req.painterId; // from verifyToken middleware
     const {
       name,
       phoneNumber,
@@ -165,12 +166,10 @@ export const updatePainterProfile = async (req, res) => {
       specification,
     };
 
-   const painterId = req.painterId;
-const updatedPainter = await Painter.findByIdAndUpdate(painterId, updateData, {
-  new: true,
-  runValidators: true,
-});
-
+    const updatedPainter = await Painter.findByIdAndUpdate(painterId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedPainter) {
       return res.status(404).json({ message: 'Painter not found' });

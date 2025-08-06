@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import API from '../utils/axios'; // Your configured axios instance
-import axios from 'axios';        // Optional, used in fetchPainter
+import API from '../utils/axios';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const PainterEditForm = ({ painterId }) => {
+const PainterEditForm = ({ painterId, onProfileUpdated }) => {
   const [formData, setFormData] = useState({
     name: '',
     phoneNumber: '',
@@ -14,7 +16,6 @@ const PainterEditForm = ({ painterId }) => {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
   const specOptions = ['interior', 'exterior'];
 
   // ✅ Fetch profile data on mount
@@ -38,6 +39,7 @@ const PainterEditForm = ({ painterId }) => {
         });
       } catch (err) {
         console.error('Error fetching profile:', err);
+        toast.error('Failed to load profile data.');
       } finally {
         setLoading(false);
       }
@@ -67,35 +69,44 @@ const PainterEditForm = ({ painterId }) => {
   };
 
   // ✅ Submit updated profile
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitting(true);
-  setMessage('');
-  try {
-    const res = await API.put('/painter/profile/update', formData);
-    setMessage('✅ Profile updated successfully!');
-    console.log('✅ Update response:', res.data);
-  } catch (err) {
-    console.error('❌ Error updating profile:', err);
-    setMessage('❌ Error updating profile.');
-  } finally {
-    setSubmitting(false);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
 
+    // ✅ Basic validation
+    if (!formData.phoneNumber || !formData.bio) {
+      toast.error('❌ Phone number and bio are required.');
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await API.put('/painter/profile/update', formData);
+      toast.success('✅ Profile updated successfully!');
+      onProfileUpdated();
+
+      if (onProfileUpdated) {
+        onProfileUpdated(res.data.painter);
+      }
+    } catch (err) {
+      console.error('❌ Error updating profile:', err);
+      toast.error('❌ Error updating profile.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
 
   return (
     <div className="edit-form">
       <h2>Edit Your Profile</h2>
-      {message && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
         <label>Name</label>
         <input name="name" value={formData.name} onChange={handleChange} required />
 
-        <label>Phone Number</label>
-        <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+        <label>Phone Number *</label>
+        <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
 
         <label>Work Experience</label>
         <input name="workExperience" value={formData.workExperience} onChange={handleChange} />
@@ -103,8 +114,8 @@ const PainterEditForm = ({ painterId }) => {
         <label>City</label>
         <input name="city" value={formData.city} onChange={handleChange} />
 
-        <label>Bio</label>
-        <textarea name="bio" value={formData.bio} onChange={handleChange}></textarea>
+        <label>Bio *</label>
+        <textarea name="bio" value={formData.bio} onChange={handleChange} required></textarea>
 
         <label>Specification</label>
         <div>
@@ -125,6 +136,9 @@ const PainterEditForm = ({ painterId }) => {
           {submitting ? 'Updating...' : 'Update Profile'}
         </button>
       </form>
+
+      {/* ✅ Toast notification container */}
+      <ToastContainer position="top-center" autoClose={2500} hideProgressBar />
     </div>
   );
 };

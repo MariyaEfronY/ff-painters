@@ -54,7 +54,11 @@ router.get('/profile', verifyToken, async (req, res) => {
 router.get('/gallery', authMiddleware, getPainterGallery);
 router.post('/gallery', authMiddleware, uploadGalleryImage);
 // Update painter profile info
-router.put('/:id/update', updatePainterProfile);
+// Update painter profile
+router.put('/profile/update', verifyToken, updatePainterProfile);
+
+
+
 
 
 // Upload or update profile image
