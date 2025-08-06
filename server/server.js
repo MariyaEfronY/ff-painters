@@ -6,10 +6,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Import routes
-import painterRoutes from './routes/painterRoutes.js'; 
+// Import routes (✅ only once per base path)
+import painterRoutes from './routes/painterRoutes.js';
 import painterImageRoutes from './routes/painterImageRoutes.js';
-
 import bookingRoutes from './routes/bookingRoutes.js';
 
 dotenv.config();
@@ -23,24 +22,21 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static image files from 'uploads' folder
+// Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes (✅ Ensure unique base paths to avoid overlap)
+// API Routes
 app.use('/api/painter', painterRoutes);
-app.use('/api/painter/images', painterImageRoutes); 
-app.use('/api/bookings', bookingRoutes);       
+app.use('/api/painter/images', painterImageRoutes);
+app.use('/api/bookings', bookingRoutes);
 
-
+// Error handling for uncaught issues
 process.on('uncaughtException', (err) => {
   console.error('Unhandled Exception:', err);
 });
-
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
 });
-
-
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -52,7 +48,7 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error('❌ MongoDB Connection Error:', err.message);
 });
 
-// Start the server
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);

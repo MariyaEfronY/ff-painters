@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/axios';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -18,16 +17,10 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
   const [submitting, setSubmitting] = useState(false);
   const specOptions = ['interior', 'exterior'];
 
-  // ✅ Fetch profile data on mount
   useEffect(() => {
     const fetchPainter = async () => {
       try {
-        const res = await axios.get('/api/painter/profile', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('painterToken')}`,
-          },
-        });
-
+        const res = await API.get('/painter/profile');
         const data = res.data;
         setFormData({
           name: data.name || '',
@@ -48,13 +41,11 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
     fetchPainter();
   }, []);
 
-  // ✅ Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Handle checkbox toggle
   const handleCheckbox = (e) => {
     const { value, checked } = e.target;
     setFormData((prev) => {
@@ -68,12 +59,10 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
     });
   };
 
-  // ✅ Submit updated profile
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
-    // ✅ Basic validation
     if (!formData.phoneNumber || !formData.bio) {
       toast.error('❌ Phone number and bio are required.');
       setSubmitting(false);
@@ -81,13 +70,9 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
     }
 
     try {
-      const res = await API.put('/painter/profile/update', formData);
+      await API.put('/painter/profile/update', formData);
       toast.success('✅ Profile updated successfully!');
-      onProfileUpdated();
-
-      if (onProfileUpdated) {
-        onProfileUpdated(res.data.painter);
-      }
+      if (onProfileUpdated) onProfileUpdated(); // ✅ Refresh dashboard data
     } catch (err) {
       console.error('❌ Error updating profile:', err);
       toast.error('❌ Error updating profile.');
@@ -100,7 +85,6 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
 
   return (
     <div className="edit-form">
-      <h2>Edit Your Profile</h2>
       <form onSubmit={handleSubmit}>
         <label>Name</label>
         <input name="name" value={formData.name} onChange={handleChange} required />
@@ -137,7 +121,6 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
         </button>
       </form>
 
-      {/* ✅ Toast notification container */}
       <ToastContainer position="top-center" autoClose={2500} hideProgressBar />
     </div>
   );

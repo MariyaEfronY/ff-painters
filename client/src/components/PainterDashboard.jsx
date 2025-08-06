@@ -10,7 +10,6 @@ const PainterDashboard = () => {
     try {
       setLoading(true);
       const res = await API.get('/painter/profile');
-      console.log("✅ Painter Response:", res.data);
       setProfile(res.data);
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -34,7 +33,7 @@ const PainterDashboard = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h2>Welcome, {profile.name}</h2>
-      <p>Email: {profile.email}</p>
+      <p>Email: {profile.email || 'N/A'}</p>
       <p>Phone: {profile.phoneNumber || 'N/A'}</p>
       <p>Experience: {profile.workExperience || 'N/A'} years</p>
       <p>City: {profile.city || 'N/A'}</p>
@@ -71,10 +70,7 @@ const PainterDashboard = () => {
 
       <h3>Edit Your Profile</h3>
 
-      <PainterEditForm
-        painterId={profile._id}
-        onProfileUpdated={() => fetchPainter()}
-      />
+      <PainterEditForm painterId={profile._id} onProfileUpdated={fetchPainter} />
     </div>
   );
 };
