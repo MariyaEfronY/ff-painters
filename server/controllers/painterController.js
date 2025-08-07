@@ -172,37 +172,49 @@ export const getPainterBookings = async (req, res) => {
 // controllers/painterController.js
 export const updatePainterProfile = async (req, res) => {
   try {
-    const painterId = req.body.id;
-    if (!painterId) {
-      return res.status(400).json({ message: 'Painter ID is required' });
-    }
-
+    const painterId = req.painter.id;
     const painter = await Painter.findById(painterId);
-    if (!painter) {
-      return res.status(404).json({ message: 'Painter not found' });
+
+    if (!painter) return res.status(404).json({ message: 'Painter not found' });
+
+    // ✅ Delete old profile image if new one is uploaded
+    if (req.file && painter.profileImage) {
+      const oldImagePath = path.join(process.cwd(), painter.profileImage); // ✅ get full path
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
     }
 
-    const { name, phoneNumber, workExperience, city, bio, specification } = req.body;
+    // ✅ Build update object
+    const updatedData = {
+      name: req.body.name,
+      phoneNumber: req.body.phoneNumber,
+      workExperience: req.body.workExperience,
+      city: req.body.city,
+      bio: req.body.bio,
+      specification: Array.isArray(req.body.specification)
+        ? req.body.specification
+        : [req.body.specification],
+    };
 
-    painter.name = name || painter.name;
-    painter.phoneNumber = phoneNumber || painter.phoneNumber;
-    painter.workExperience = workExperience || painter.workExperience;
-    painter.city = city || painter.city;
-    painter.bio = bio || painter.bio;
-    painter.specification = specification || painter.specification;
-
+    // ✅ Update profile image path if uploaded
     if (req.file) {
-      painter.profileImage = req.file.filename;
+      updatedData.profileImage = `/uploads/${req.file.filename}`;
     }
 
-    const updated = await painter.save();
-    res.status(200).json(updated);
-  } catch (error) {
-    console.error('❌ Error updating painter profile:', error.message);
-    res.status(500).json({ message: 'Server error' });
+    // ✅ Update in DB
+    const updatedPainter = await Painter.findByIdAndUpdate(
+      painterId,
+      updatedData,
+      { new: true }
+    );
+
+    res.json(updatedPainter);
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ message: 'Server error during profile update' });
   }
 };
-
 
 
 

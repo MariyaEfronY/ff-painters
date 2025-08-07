@@ -30,6 +30,9 @@ app.use('/api/painter', painterRoutes);
 app.use('/api/painter/images', painterImageRoutes);
 app.use('/api/bookings', bookingRoutes);
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Error handling for uncaught issues
 process.on('uncaughtException', (err) => {
   console.error('Unhandled Exception:', err);
