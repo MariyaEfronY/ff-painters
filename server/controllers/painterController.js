@@ -69,26 +69,16 @@ export const painterLogin = async (req, res) => {
 };
 
 
-// controllers/painterController.js
-// controller/painterController.js
-
 export const getPainterProfile = async (req, res) => {
   try {
-    const painterId = req.query.id;
-
-    if (!painterId) {
-      return res.status(400).json({ message: 'Painter ID is required' });
-    }
-
-    const painter = await Painter.findById(painterId);
-
+    const painter = await Painter.findById(req.painterId);
     if (!painter) {
       return res.status(404).json({ message: 'Painter not found' });
     }
 
     res.status(200).json(painter);
   } catch (error) {
-    console.error('❌ Error in getPainterProfile:', error.message);
+    console.error('Profile fetch error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

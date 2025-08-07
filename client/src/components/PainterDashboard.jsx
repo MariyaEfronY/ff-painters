@@ -8,11 +8,19 @@ const PainterDashboard = () => {
 
   const fetchPainter = async () => {
   try {
-    const id = localStorage.getItem('painterId');
-    const response = await axios.get(`http://localhost:5000/api/painter/profile?id=${id}`);
-    setPainter(response.data); // assuming you're storing it in state
+    const token = localStorage.getItem('painterToken'); // corrected token key
+
+    const response = await axios.get('http://localhost:5000/api/painter/profile', {
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ correct header
+      },
+    });
+
+    setProfile(response.data);
   } catch (error) {
     console.error('Error fetching profile:', error);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -66,10 +74,7 @@ const PainterDashboard = () => {
 
       <h3>Edit Your Profile</h3>
 
-      <PainterEditForm
-        painterId={profile._id}
-        onProfileUpdated={fetchPainter}
-      />
+      <PainterEditForm painterId={profile._id} onProfileUpdated={fetchPainter} />
     </div>
   );
 };
