@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+
+import axios from 'axios';
+
 import API from '../utils/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -61,26 +64,45 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
 
  const handleSubmit = async (e) => {
   e.preventDefault();
+  setSubmitting(true);
 
   try {
-    const response = await axios.put('http://localhost:5000/api/painter/profile', {
-      painterId: painter._id, // this must exist
-      name,
-      phoneNumber,
-      workExperience,
-      city,
-      bio,
-      specification,
-      profileImage,
+    const token = localStorage.getItem('painterToken');
+    const submitData = new FormData();
+
+    submitData.append('name', formData.name);
+    submitData.append('phoneNumber', formData.phoneNumber);
+    submitData.append('workExperience', formData.workExperience);
+    submitData.append('city', formData.city);
+    submitData.append('bio', formData.bio);
+    formData.specification.forEach((spec) => {
+      submitData.append('specification[]', spec);
     });
+    if (formData.profileImage) {
+      submitData.append('profileImage', formData.profileImage);
+    }
+
+    const response = await axios.put(
+      `http://localhost:5000/api/painter/profile/${painterId}`,
+      submitData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
 
     toast.success('Profile updated successfully!');
-    onUpdate(response.data); // trigger refresh
+    onProfileUpdated(); // notify parent to refresh data
   } catch (error) {
     console.error('Update failed:', error);
     toast.error('Update failed. Check console for details.');
+  } finally {
+    setSubmitting(false);
   }
 };
+
 
 
 
