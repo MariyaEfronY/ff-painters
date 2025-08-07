@@ -132,6 +132,8 @@ export const getPainterBookings = async (req, res) => {
 // ✅ Update profile
 export const updatePainterProfile = async (req, res) => {
   try {
+
+    
     const {
       painterId,
       name,

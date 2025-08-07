@@ -10,10 +10,10 @@ const authMiddleware = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.painterId = decoded.id;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // or hardcoded key for now
+    req.painterId = decoded.id; // ✅ IMPORTANT — this must match how you signed the token
     next();
-  } catch (error) {
+  } catch (err) {
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
