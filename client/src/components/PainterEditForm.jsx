@@ -63,26 +63,38 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
   e.preventDefault();
   setSubmitting(true);
 
-  const dataToSend = new FormData();
-  dataToSend.append('profileImage', formData.profileImage);
-  dataToSend.append('name', formData.name);
-  dataToSend.append('phoneNumber', formData.phoneNumber);
-  dataToSend.append('workExperience', formData.workExperience);
-  dataToSend.append('city', formData.city);
-  dataToSend.append('bio', formData.bio);
-  dataToSend.append('specification', JSON.stringify(formData.specification));
+  const submissionData = new FormData();
+  submissionData.append('name', formData.name);
+  submissionData.append('phoneNumber', formData.phoneNumber);
+  submissionData.append('workExperience', formData.workExperience);
+  submissionData.append('city', formData.city);
+  submissionData.append('bio', formData.bio);
+  formData.specification.forEach((spec) =>
+    submissionData.append('specification', spec)
+  );
+
+  if (formData.profileImage) {
+    submissionData.append('profileImage', formData.profileImage); // ✅ THIS LINE
+  }
 
   try {
-    await API.put('/painter/profile', dataToSend);
+    const res = await API.put('/painter/profile', submissionData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
     toast.success('Profile updated!');
-    onProfileUpdated(); // Refresh dashboard
+    onProfileUpdated(); // ✅ Refreshes dashboard
   } catch (err) {
-    console.error('Error updating profile:', err);
-    toast.error('Update failed.');
+    console.error('Update failed:', err);
+    toast.error('Update failed');
   } finally {
     setSubmitting(false);
   }
 };
+
+
 
 
   if (loading) return <p>Loading...</p>;
@@ -91,13 +103,18 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
     <div className="edit-form">
       <form onSubmit={handleSubmit}>
         <label>Profile Image</label>
-<input
+        <input
   type="file"
   accept="image/*"
   onChange={(e) =>
-    setFormData((prev) => ({ ...prev, profileImage: e.target.files[0] }))
+    setFormData((prev) => ({
+      ...prev,
+      profileImage: e.target.files[0],
+    }))
   }
 />
+
+
         <label>Name</label>
         <input name="name" value={formData.name} onChange={handleChange} required />
 
