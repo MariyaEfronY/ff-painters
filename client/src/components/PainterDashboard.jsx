@@ -30,8 +30,8 @@ const PainterDashboard = () => {
   }, []);
 
   const profileImageUrl = profile?.profileImage
-    ? `http://localhost:5000${profile.profileImage}`
-    : null;
+  ? `http://localhost:5000/uploads/profileImages/${profile.profileImage}`
+  : null;
 
   if (loading) return <p>Loading profile...</p>;
   if (!profile) return <p>Unable to load profile.</p>;
@@ -61,7 +61,10 @@ const PainterDashboard = () => {
             border: '2px solid #ddd',
             marginTop: '10px',
           }}
+
+          
         />
+        
       ) : (
         <p>No profile image uploaded.</p>
       )}

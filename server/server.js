@@ -5,43 +5,51 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs'; // ✅ add this
 
-// Import routes (✅ only once per base path)
+// Routes
 import painterRoutes from './routes/painterRoutes.js';
 import painterImageRoutes from './routes/painterImageRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 
 dotenv.config();
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Fix __dirname in ES Modules
+// ✅ __dirname fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Static files
+// ✅ Auto-create upload folders if they don’t exist
+const createUploadDirs = () => {
+  const dirs = [
+    path.join(__dirname, 'uploads'),
+    path.join(__dirname, 'uploads/profileImages'),
+    path.join(__dirname, 'uploads/galleryImages'),
+  ];
+  dirs.forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+      console.log(`📁 Created directory: ${dir}`);
+    }
+  });
+};
+createUploadDirs();
+
+// ✅ Serve static image files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes
+// API routes
 app.use('/api/painter', painterRoutes);
 app.use('/api/painter/images', painterImageRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Error handling
+process.on('uncaughtException', (err) => console.error('Unhandled Exception:', err));
+process.on('unhandledRejection', (reason) => console.error('Unhandled Rejection:', reason));
 
-// Error handling for uncaught issues
-process.on('uncaughtException', (err) => {
-  console.error('Unhandled Exception:', err);
-});
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection:', reason);
-});
-
-// MongoDB Connection
+// ✅ Connect MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -51,7 +59,7 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error('❌ MongoDB Connection Error:', err.message);
 });
 
-// Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);

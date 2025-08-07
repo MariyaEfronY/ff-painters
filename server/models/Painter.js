@@ -1,23 +1,20 @@
 import mongoose from 'mongoose';
 
-const painterSchema = new mongoose.Schema({
+const PainterSchema = new mongoose.Schema({
   name: String,
-  email: String,
+  email: { type: String, unique: true },
   password: String,
   phoneNumber: String,
-  workExperience: Number,
   city: String,
+  workExperience: String,
   bio: String,
-  specification: [String],
-  profileImage: String,
-  gallery: [
-    {
-      imageUrl: String,
-      description: String,
-    },
-  ],
+  specification: [String], // e.g., ["interior", "exterior"]
+  profileImage: {
+  type: String,
+  default: '', // or 'default.jpg' if you have a fallback image
+},
+
 });
 
-const Painter = mongoose.model('Painter', painterSchema);
-
-export default Painter; // ✅ ES module export
+const Painter = mongoose.model('Painter', PainterSchema);
+export default Painter;

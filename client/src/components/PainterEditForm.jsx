@@ -82,16 +82,17 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
       submitData.append('profileImage', formData.profileImage);
     }
 
-    const response = await axios.put(
-      `http://localhost:5000/api/painter/profile/${painterId}`,
-      submitData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+   const response = await axios.put(
+  'http://localhost:5000/api/painter/profile', // ✅ Correct URL (no :id)
+  submitData,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  }
+);
+
 
     toast.success('Profile updated successfully!');
     onProfileUpdated(); // notify parent to refresh data

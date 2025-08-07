@@ -9,22 +9,49 @@ import createToken from '../utils/createToken.js';
 // ✅ Signup
 export const painterSignup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    const existing = await Painter.findOne({ email });
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      city,
+      workExperience,
+      bio,
+      specification,
+    } = req.body;
 
-    if (existing) return res.status(400).json({ message: 'Email already in use' });
+    // Check if painter already exists
+    const existingPainter = await Painter.findOne({ email });
+    if (existingPainter) {
+      return res.status(400).json({ message: 'Painter already exists' });
+    }
 
-    const hashed = await bcrypt.hash(password, 10);
-    const painter = new Painter({ name, email, password: hashed });
-    await painter.save();
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const token = createToken(painter._id);
-    res.status(201).json({ message: 'Signup successful', token, painterId: painter._id, painter });
+    // Handle uploaded image
+    const profileImage = req.file ? req.file.filename : '';
+
+    // Create painter
+    const painter = await Painter.create({
+      name,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+      city,
+      workExperience,
+      bio,
+      specification: Array.isArray(specification) ? specification : [specification],
+      profileImage, // ✅ save image name in DB
+    });
+
+    res.status(201).json({ message: 'Painter registered successfully' });
   } catch (error) {
     console.error('Signup Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // ✅ Login
 export const painterLogin = async (req, res) => {
@@ -129,13 +156,12 @@ export const getPainterBookings = async (req, res) => {
   }
 };
 
-// ✅ Update profile
+// ✅ Update profile using authenticated user ID
 export const updatePainterProfile = async (req, res) => {
   try {
+    const painterId = req.user.id; // ✅ Get painterId from authenticated user
 
-    
     const {
-      painterId,
       name,
       phoneNumber,
       workExperience,
@@ -146,7 +172,7 @@ export const updatePainterProfile = async (req, res) => {
 
     let profileImage = req.body.profileImage;
 
-    // If a new profile image is uploaded via multer
+    // ✅ If a new image is uploaded via multer
     if (req.file) {
       profileImage = req.file.filename;
     }
@@ -175,4 +201,5 @@ export const updatePainterProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error while updating profile' });
   }
 };
+
 

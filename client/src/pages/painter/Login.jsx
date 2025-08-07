@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -11,15 +12,16 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/painter/auth/login', form);
 
-      // ✅ Save the correct token and painterId
-      localStorage.setItem('painterId', response.data.painter._id);  // ✅ correct
+      // ✅ Save token and painterId
+      localStorage.setItem('painterId', response.data.painter._id);
       localStorage.setItem('painterToken', response.data.token);
 
-      // Navigate to dashboard
+      toast.success('Login successful!'); // ✅ Toast for success
+
       navigate('/painter/dashboard');
     } catch (error) {
-      console.log('Login failed:', error.response?.data || error.message);
-      alert('Login failed: ' + (error.response?.data?.message || error.message));
+      console.error('Login failed:', error.response?.data || error.message);
+      toast.error('Login failed: ' + (error.response?.data?.message || error.message)); // ✅ Toast for error
     }
   };
 
@@ -30,6 +32,7 @@ const Login = () => {
         name="email"
         placeholder="Email"
         required
+        value={form.email}
         onChange={(e) => setForm({ ...form, email: e.target.value })}
       />
       <input
@@ -37,6 +40,7 @@ const Login = () => {
         name="password"
         placeholder="Password"
         required
+        value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
       <button type="submit">Login</button>
