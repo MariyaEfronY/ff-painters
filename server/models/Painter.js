@@ -1,32 +1,23 @@
-// server/models/Painter.js
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
-
-const PainterSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  profileImage: {
-    type: String,
-  },
-  phoneNumber: {
-    type: String,
-  },
-  workExperience: {
-    type: String,
-  },
-  city: {
-    type: String,
-  },
-  bio: {
-    type: String,
-  },
-  specification: {
-    type: [String],
-    enum: ['interior', 'exterior'],
-    default: [],
-  },
+const painterSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  password: String,
+  phoneNumber: String,
+  workExperience: Number,
+  city: String,
+  bio: String,
+  specification: [String],
+  profileImage: String,
+  gallery: [
+    {
+      imageUrl: String,
+      description: String,
+    },
+  ],
 });
 
-module.exports = mongoose.model('Painter', PainterSchema);
+const Painter = mongoose.model('Painter', painterSchema);
+
+export default Painter; // ✅ ES module export
