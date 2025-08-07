@@ -1,4 +1,3 @@
-// server/controllers/painterController.js
 import Painter from '../models/Painter.js';
 import Booking from '../models/Booking.js';
 import bcrypt from 'bcryptjs';
@@ -7,75 +6,50 @@ import fs from 'fs';
 import path from 'path';
 import createToken from '../utils/createToken.js';
 
-
-// Signup Controller
+// ✅ Signup
 export const painterSignup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     const existing = await Painter.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
+
+    if (existing) return res.status(400).json({ message: 'Email already in use' });
 
     const hashed = await bcrypt.hash(password, 10);
     const painter = new Painter({ name, email, password: hashed });
     await painter.save();
 
     const token = createToken(painter._id);
-
-    // ✅ Return painterId explicitly
-    res.status(201).json({
-      message: 'Signup successful',
-      token,
-      painterId: painter._id,
-      painter,
-    });
+    res.status(201).json({ message: 'Signup successful', token, painterId: painter._id, painter });
   } catch (error) {
     console.error('Signup Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-
-// Login Controller
+// ✅ Login
 export const painterLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const painter = await Painter.findOne({ email });
-    if (!painter) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+
+    if (!painter) return res.status(404).json({ message: 'User not found' });
 
     const isMatch = await bcrypt.compare(password, painter.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
+    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = createToken(painter._id);
-
-    // ✅ Return painterId explicitly
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      painterId: painter._id,
-      painter,
-    });
+    res.status(200).json({ message: 'Login successful', token, painterId: painter._id, painter });
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-
+// ✅ Get profile
 export const getPainterProfile = async (req, res) => {
   try {
     const painter = await Painter.findById(req.painterId);
-    if (!painter) {
-      return res.status(404).json({ message: 'Painter not found' });
-    }
-
+    if (!painter) return res.status(404).json({ message: 'Painter not found' });
     res.status(200).json(painter);
   } catch (error) {
     console.error('Profile fetch error:', error);
@@ -83,16 +57,7 @@ export const getPainterProfile = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-// Upload profile image
+// ✅ Upload profile image
 export const uploadProfileImage = async (req, res) => {
   try {
     const painterId = req.params.id;
@@ -101,9 +66,9 @@ export const uploadProfileImage = async (req, res) => {
     const painter = await Painter.findById(painterId);
     if (!painter) return res.status(404).json({ message: 'Painter not found' });
 
-    // 🧹 Optional cleanup: delete old image
+    // Delete old image
     if (painter.profileImage) {
-      const oldPath = path.join('uploads', painter.profileImage);
+      const oldPath = path.join('uploads', 'profileImages', painter.profileImage);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     }
 
@@ -117,7 +82,7 @@ export const uploadProfileImage = async (req, res) => {
   }
 };
 
-// Upload gallery image
+// ✅ Upload gallery image
 export const uploadGalleryImage = async (req, res) => {
   try {
     const painterId = req.params.id;
@@ -127,9 +92,7 @@ export const uploadGalleryImage = async (req, res) => {
     };
 
     const painter = await Painter.findById(painterId);
-    if (!painter) {
-      return res.status(404).json({ error: 'Painter not found' });
-    }
+    if (!painter) return res.status(404).json({ error: 'Painter not found' });
 
     painter.gallery.push(newImage);
     await painter.save();
@@ -141,14 +104,12 @@ export const uploadGalleryImage = async (req, res) => {
   }
 };
 
-// ✅ THIS IS THE ONE YOU’RE MISSING!
+// ✅ Get gallery
 export const getPainterGallery = async (req, res) => {
   try {
     const painterId = req.params.id;
     const painter = await Painter.findById(painterId);
-    if (!painter) {
-      return res.status(404).json({ error: 'Painter not found' });
-    }
+    if (!painter) return res.status(404).json({ error: 'Painter not found' });
     res.status(200).json(painter.gallery);
   } catch (error) {
     console.error('Error getting gallery:', error);
@@ -156,7 +117,7 @@ export const getPainterGallery = async (req, res) => {
   }
 };
 
-// Bookings for painter
+// ✅ Get bookings
 export const getPainterBookings = async (req, res) => {
   try {
     const painterId = req.params.id;
@@ -168,54 +129,48 @@ export const getPainterBookings = async (req, res) => {
   }
 };
 
-
-// controllers/painterController.js
+// ✅ Update profile
 export const updatePainterProfile = async (req, res) => {
   try {
-    const painterId = req.painter.id;
-    const painter = await Painter.findById(painterId);
+    const {
+      painterId,
+      name,
+      phoneNumber,
+      workExperience,
+      city,
+      bio,
+      specification,
+    } = req.body;
 
-    if (!painter) return res.status(404).json({ message: 'Painter not found' });
+    let profileImage = req.body.profileImage;
 
-    // ✅ Delete old profile image if new one is uploaded
-    if (req.file && painter.profileImage) {
-      const oldImagePath = path.join(process.cwd(), painter.profileImage); // ✅ get full path
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
-    }
-
-    // ✅ Build update object
-    const updatedData = {
-      name: req.body.name,
-      phoneNumber: req.body.phoneNumber,
-      workExperience: req.body.workExperience,
-      city: req.body.city,
-      bio: req.body.bio,
-      specification: Array.isArray(req.body.specification)
-        ? req.body.specification
-        : [req.body.specification],
-    };
-
-    // ✅ Update profile image path if uploaded
+    // If a new profile image is uploaded via multer
     if (req.file) {
-      updatedData.profileImage = `/uploads/${req.file.filename}`;
+      profileImage = req.file.filename;
     }
 
-    // ✅ Update in DB
     const updatedPainter = await Painter.findByIdAndUpdate(
       painterId,
-      updatedData,
+      {
+        name,
+        phoneNumber,
+        workExperience,
+        city,
+        bio,
+        specification,
+        profileImage,
+      },
       { new: true }
     );
 
-    res.json(updatedPainter);
-  } catch (err) {
-    console.error('Update error:', err);
-    res.status(500).json({ message: 'Server error during profile update' });
+    if (!updatedPainter) {
+      return res.status(404).json({ message: 'Painter not found' });
+    }
+
+    res.status(200).json(updatedPainter);
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ message: 'Server error while updating profile' });
   }
 };
-
-
-
 

@@ -59,40 +59,29 @@ const PainterEditForm = ({ painterId, onProfileUpdated }) => {
     });
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
-  setSubmitting(true);
-
-  const submissionData = new FormData();
-  submissionData.append('name', formData.name);
-  submissionData.append('phoneNumber', formData.phoneNumber);
-  submissionData.append('workExperience', formData.workExperience);
-  submissionData.append('city', formData.city);
-  submissionData.append('bio', formData.bio);
-  formData.specification.forEach((spec) =>
-    submissionData.append('specification', spec)
-  );
-
-  if (formData.profileImage) {
-    submissionData.append('profileImage', formData.profileImage); // ✅ THIS LINE
-  }
 
   try {
-    const res = await API.put('/painter/profile', submissionData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const response = await axios.put('http://localhost:5000/api/painter/profile', {
+      painterId: painter._id, // this must exist
+      name,
+      phoneNumber,
+      workExperience,
+      city,
+      bio,
+      specification,
+      profileImage,
     });
 
-    toast.success('Profile updated!');
-    onProfileUpdated(); // ✅ Refreshes dashboard
-  } catch (err) {
-    console.error('Update failed:', err);
-    toast.error('Update failed');
-  } finally {
-    setSubmitting(false);
+    toast.success('Profile updated successfully!');
+    onUpdate(response.data); // trigger refresh
+  } catch (error) {
+    console.error('Update failed:', error);
+    toast.error('Update failed. Check console for details.');
   }
 };
+
 
 
 
