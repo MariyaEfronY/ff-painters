@@ -159,14 +159,35 @@ export const getPainterBookings = async (req, res) => {
 // ✅ Update profile using authenticated user ID
 export const updatePainterProfile = async (req, res) => {
   try {
-    const updated = await Painter.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: 'Painter not found' });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const painter = await Painter.findById(req.params.id);
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
+    }
+
+    // If a new file is uploaded
+    if (req.file) {
+      // Delete old image if exists
+      if (painter.profileImage) {
+        const oldImagePath = path.join("uploads/profileImages", painter.profileImage);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      painter.profileImage = req.file.filename; // Save new image
+    }
+
+    // Update other fields
+    Object.keys(req.body).forEach((key) => {
+      painter[key] = req.body[key];
+    });
+
+    await painter.save();
+    res.json({ message: "Profile updated successfully", painter });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 
 

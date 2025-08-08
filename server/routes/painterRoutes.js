@@ -27,7 +27,7 @@ router.post('/auth/login', painterLogin);
 
 /* ---------- PROFILE ROUTES ---------- */
 router.get('/profile', authMiddleware, getPainterProfile);
-router.put('/profile', authMiddleware, upload.single('profileImage'), updatePainterProfile);
+router.put('/:id', upload.single('profileImage'), updatePainterProfile);
 
 /* ---------- UPDATE PAINTER PROFILE ---------- */
 router.put('/:id', updatePainterProfile);
