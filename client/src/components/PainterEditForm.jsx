@@ -1,6 +1,8 @@
 // src/components/PainterEditForm.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
   const [formData, setFormData] = useState({
@@ -36,63 +38,35 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
   };
 
   // ✅ Submit changes
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const token = localStorage.getItem('painterToken');
-    await axios.put(
-      `http://localhost:5000/api/painter/${painterId}`,
-      formData,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    if (onProfileUpdated) onProfileUpdated();
-  } catch (err) {
-    console.error('Error updating profile:', err);
-  }
-};
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('painterToken');
+      await axios.put(
+        `http://localhost:5000/api/painter/${painterId}`,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      toast.success('Profile updated successfully! 🎉'); // ✅ Toast here
+      
+      if (onProfileUpdated) onProfileUpdated();
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      toast.error('Failed to update profile ❌'); // ✅ Error toast
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        placeholder="Name"
-      />
-      <input
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Email"
-      />
-      <input
-        name="phoneNumber"
-        value={formData.phoneNumber}
-        onChange={handleChange}
-        placeholder="Phone Number"
-      />
-      <input
-        name="workExperience"
-        value={formData.workExperience}
-        onChange={handleChange}
-        placeholder="Work Experience"
-      />
-      <input
-        name="city"
-        value={formData.city}
-        onChange={handleChange}
-        placeholder="City"
-      />
-      <textarea
-        name="bio"
-        value={formData.bio}
-        onChange={handleChange}
-        placeholder="Bio"
-      />
-      {/* Example: Multi-select for specification */}
+      <input name="name" value={formData.name} onChange={handleChange} placeholder="Name" />
+      <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" />
+      <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone Number" />
+      <input name="workExperience" value={formData.workExperience} onChange={handleChange} placeholder="Work Experience" />
+      <input name="city" value={formData.city} onChange={handleChange} placeholder="City" />
+      <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Bio" />
       <select
         name="specification"
         value={formData.specification}
