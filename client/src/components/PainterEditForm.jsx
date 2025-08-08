@@ -1,169 +1,110 @@
-import React, { useEffect, useState } from 'react';
-
+// src/components/PainterEditForm.jsx
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import API from '../utils/axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-const PainterEditForm = ({ painterId, onProfileUpdated }) => {
+const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    phoneNumber: '',
-    workExperience: '',
-    city: '',
-    bio: '',
-    specification: [],
+    name: initialData.name || '',
+    email: initialData.email || '',
+    phoneNumber: initialData.phoneNumber || '',
+    workExperience: initialData.workExperience || '',
+    city: initialData.city || '',
+    bio: initialData.bio || '',
+    specification: initialData.specification || [],
   });
 
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const specOptions = ['interior', 'exterior'];
-
+  // ✅ Update form when initialData changes
   useEffect(() => {
-    const fetchPainter = async () => {
-      try {
-        const res = await API.get('/painter/profile');
-        const data = res.data;
-        setFormData({
-          name: data.name || '',
-          phoneNumber: data.phoneNumber || '',
-          workExperience: data.workExperience || '',
-          city: data.city || '',
-          bio: data.bio || '',
-          specification: data.specification || [],
-        });
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-        toast.error('Failed to load profile data.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    setFormData({
+      name: initialData.name || '',
+      email: initialData.email || '',
+      phoneNumber: initialData.phoneNumber || '',
+      workExperience: initialData.workExperience || '',
+      city: initialData.city || '',
+      bio: initialData.bio || '',
+      specification: initialData.specification || [],
+    });
+  }, [initialData]);
 
-    fetchPainter();
-  }, []);
-
+  // ✅ Handle field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCheckbox = (e) => {
-    const { value, checked } = e.target;
-    setFormData((prev) => {
-      let specs = [...prev.specification];
-      if (checked) {
-        specs.push(value);
-      } else {
-        specs = specs.filter((s) => s !== value);
-      }
-      return { ...prev, specification: specs };
-    });
-  };
-
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitting(true);
-
-  try {
-    const token = localStorage.getItem('painterToken');
-    const submitData = new FormData();
-
-    submitData.append('name', formData.name);
-    submitData.append('phoneNumber', formData.phoneNumber);
-    submitData.append('workExperience', formData.workExperience);
-    submitData.append('city', formData.city);
-    submitData.append('bio', formData.bio);
-    formData.specification.forEach((spec) => {
-      submitData.append('specification[]', spec);
-    });
-    if (formData.profileImage) {
-      submitData.append('profileImage', formData.profileImage);
-    }
-
-   const response = await axios.put(
-  'http://localhost:5000/api/painter/profile', // ✅ Correct URL (no :id)
-  submitData,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
-    },
-  }
-);
-
-
-    toast.success('Profile updated successfully!');
-    onProfileUpdated(); // notify parent to refresh data
-  } catch (error) {
-    console.error('Update failed:', error);
-    toast.error('Update failed. Check console for details.');
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-
-
-
-
-
-  if (loading) return <p>Loading...</p>;
-
-  return (
-    <div className="edit-form">
-      <form onSubmit={handleSubmit}>
-        <label>Profile Image</label>
-        <input
-  type="file"
-  accept="image/*"
-  onChange={(e) =>
     setFormData((prev) => ({
       ...prev,
-      profileImage: e.target.files[0],
-    }))
-  }
-/>
+      [name]: value,
+    }));
+  };
 
+  // ✅ Submit changes
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('painterToken');
+      await axios.put(`http://localhost:5000/api/painter/${painterId}`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (onProfileUpdated) onProfileUpdated();
+    } catch (err) {
+      console.error('Error updating profile:', err);
+    }
+  };
 
-        <label>Name</label>
-        <input name="name" value={formData.name} onChange={handleChange} required />
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        placeholder="Name"
+      />
+      <input
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        placeholder="Email"
+      />
+      <input
+        name="phoneNumber"
+        value={formData.phoneNumber}
+        onChange={handleChange}
+        placeholder="Phone Number"
+      />
+      <input
+        name="workExperience"
+        value={formData.workExperience}
+        onChange={handleChange}
+        placeholder="Work Experience"
+      />
+      <input
+        name="city"
+        value={formData.city}
+        onChange={handleChange}
+        placeholder="City"
+      />
+      <textarea
+        name="bio"
+        value={formData.bio}
+        onChange={handleChange}
+        placeholder="Bio"
+      />
+      {/* Example: Multi-select for specification */}
+      <select
+        name="specification"
+        value={formData.specification}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            specification: Array.from(e.target.selectedOptions, (opt) => opt.value),
+          }))
+        }
+        multiple
+      >
+        <option value="interior">Interior</option>
+        <option value="exterior">Exterior</option>
+      </select>
 
-        <label>Phone Number *</label>
-        <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
-
-        <label>Work Experience</label>
-        <input name="workExperience" value={formData.workExperience} onChange={handleChange} />
-
-        <label>City</label>
-        <input name="city" value={formData.city} onChange={handleChange} />
-
-        <label>Bio *</label>
-        <textarea name="bio" value={formData.bio} onChange={handleChange} required></textarea>
-
-        <label>Specification</label>
-        <div>
-          {specOptions.map((spec) => (
-            <label key={spec} style={{ marginRight: '10px' }}>
-              <input
-                type="checkbox"
-                value={spec}
-                checked={formData.specification.includes(spec)}
-                onChange={handleCheckbox}
-              />
-              {spec}
-            </label>
-          ))}
-        </div>
-
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Updating...' : 'Update Profile'}
-        </button>
-      </form>
-
-      <ToastContainer position="top-center" autoClose={2500} hideProgressBar />
-    </div>
+      <button type="submit">Save Changes</button>
+    </form>
   );
 };
 

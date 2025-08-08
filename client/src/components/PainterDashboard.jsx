@@ -1,37 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import PainterEditForm from '../components/PainterEditForm';
+import { useNavigate } from 'react-router-dom'; // ✅ import navigation
 
 const PainterDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // ✅ hook to redirect
 
   const fetchPainter = async () => {
-  try {
-    const token = localStorage.getItem('painterToken'); // corrected token key
-
-    const response = await axios.get('http://localhost:5000/api/painter/profile', {
-      headers: {
-        Authorization: `Bearer ${token}`, // ✅ correct header
-      },
-    });
-
-    setProfile(response.data);
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    try {
+      const token = localStorage.getItem('painterToken');
+      const response = await axios.get('http://localhost:5000/api/painter/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setProfile(response.data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchPainter();
   }, []);
 
   const profileImageUrl = profile?.profileImage
-  ? `http://localhost:5000/uploads/profileImages/${profile.profileImage}`
-  : null;
+    ? `http://localhost:5000/uploads/profileImages/${profile.profileImage}`
+    : null;
 
   if (loading) return <p>Loading profile...</p>;
   if (!profile) return <p>Unable to load profile.</p>;
@@ -61,10 +59,7 @@ const PainterDashboard = () => {
             border: '2px solid #ddd',
             marginTop: '10px',
           }}
-
-          
         />
-        
       ) : (
         <p>No profile image uploaded.</p>
       )}
@@ -73,11 +68,23 @@ const PainterDashboard = () => {
         🔄 Refresh Profile
       </button>
 
-      <hr style={{ margin: '30px 0' }} />
+      <br />
 
-      <h3>Edit Your Profile</h3>
-
-      <PainterEditForm painterId={profile._id} onProfileUpdated={fetchPainter} />
+      {/* ✅ Edit Profile Button */}
+       <button
+        style={{
+          marginTop: '10px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          padding: '8px 12px',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+        onClick={() => navigate('/edit-profile')} // ✅ navigate to edit page
+      >
+        ✏️ Edit Profile
+      </button>
     </div>
   );
 };
