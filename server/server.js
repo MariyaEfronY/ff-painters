@@ -12,6 +12,10 @@ import painterRoutes from './routes/painterRoutes.js';
 import painterImageRoutes from './routes/painterImageRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 
+
+// User Routes
+import userRoutes from "./routes/userRoutes.js";
+
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -44,6 +48,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/painter', painterRoutes);
 app.use('/api/painter/images', painterImageRoutes);
 app.use('/api/bookings', bookingRoutes);
+
+// User Routes
+app.use("/api/users", userRoutes);
 
 // Error handling
 process.on('uncaughtException', (err) => console.error('Unhandled Exception:', err));
