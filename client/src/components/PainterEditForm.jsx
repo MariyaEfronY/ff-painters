@@ -36,18 +36,23 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
   };
 
   // ✅ Submit changes
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('painterToken');
-      await axios.put(`http://localhost:5000/api/painter/${painterId}`, formData, {
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem('painterToken');
+    await axios.put(
+      `http://localhost:5000/api/painter/${painterId}`,
+      formData,
+      {
         headers: { Authorization: `Bearer ${token}` },
-      });
-      if (onProfileUpdated) onProfileUpdated();
-    } catch (err) {
-      console.error('Error updating profile:', err);
-    }
-  };
+      }
+    );
+    if (onProfileUpdated) onProfileUpdated();
+  } catch (err) {
+    console.error('Error updating profile:', err);
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit}>

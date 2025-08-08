@@ -159,47 +159,14 @@ export const getPainterBookings = async (req, res) => {
 // ✅ Update profile using authenticated user ID
 export const updatePainterProfile = async (req, res) => {
   try {
-    const painterId = req.user.id; // ✅ Get painterId from authenticated user
-
-    const {
-      name,
-      phoneNumber,
-      workExperience,
-      city,
-      bio,
-      specification,
-    } = req.body;
-
-    let profileImage = req.body.profileImage;
-
-    // ✅ If a new image is uploaded via multer
-    if (req.file) {
-      profileImage = req.file.filename;
-    }
-
-    const updatedPainter = await Painter.findByIdAndUpdate(
-      painterId,
-      {
-        name,
-        phoneNumber,
-        workExperience,
-        city,
-        bio,
-        specification,
-        profileImage,
-      },
-      { new: true }
-    );
-
-    if (!updatedPainter) {
-      return res.status(404).json({ message: 'Painter not found' });
-    }
-
-    res.status(200).json(updatedPainter);
-  } catch (error) {
-    console.error('Update error:', error);
-    res.status(500).json({ message: 'Server error while updating profile' });
+    const updated = await Painter.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Painter not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
+
+
 
 
