@@ -16,6 +16,7 @@ import bookingRoutes from './routes/bookingRoutes.js';
 // User Routes
 import userRoutes from "./routes/userRoutes.js";
 
+
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -31,6 +32,7 @@ const createUploadDirs = () => {
     path.join(__dirname, 'uploads'),
     path.join(__dirname, 'uploads/profileImages'),
     path.join(__dirname, 'uploads/galleryImages'),
+    path.join(__dirname, 'uploads/userProfileImages'), 
   ];
   dirs.forEach((dir) => {
     if (!fs.existsSync(dir)) {

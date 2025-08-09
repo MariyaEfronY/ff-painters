@@ -1,11 +1,26 @@
-// routes/userRoutes.js
 import express from "express";
-import { signupUser, loginUser } from "../controllers/userControllers.js";
+import {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  updateUserProfile,
+} from "../controllers/userController.js";
+import upload from "../middleware/userProfileUpload.js"; // fix folder name if needed
+import { protectUser } from "../middleware/userAuthMiddleware.js"; // import protectUser middleware
 
 const router = express.Router();
 
-// Public routes
-router.post("/signup", signupUser);
+// Auth
+router.post("/signup", registerUser);
 router.post("/login", loginUser);
+
+// Profile (use protectUser for auth)
+router.get("/profile/:id", protectUser, getUserProfile);
+router.put(
+  "/profile/:id",
+  protectUser,
+  upload.single("profileImage"),
+  updateUserProfile
+);
 
 export default router;
