@@ -14,7 +14,7 @@ const UserDashboard = () => {
       }
 
       try {
-        const { data } = await axios.get("http://localhost:5000/api/users/profile", {
+        const { data } = await axios.get("http://localhost:5000/api/users/dashboard", {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         setProfile(data);
@@ -32,16 +32,26 @@ const UserDashboard = () => {
   if (!profile) return <p>Unable to load profile. Please login again.</p>;
 
   return (
-    <div>
+    <div style={{ textAlign: "center" }}>
       <h1>Welcome {profile.name}</h1>
-      <p>{profile.bio}</p>
+      <p>Email: {profile.email}</p>
+      <p>Phone: {profile.phone || "N/A"}</p>
+      <p>City: {profile.city || "N/A"}</p>
+      <p>Bio: {profile.bio || "No bio provided"}</p>
+
       {profile.profileImage && (
-        <img
-          src={`http://localhost:5000${profile.profileImage}`}
-          alt="Profile"
-          style={{ width: "150px", borderRadius: "50%" }}
-        />
-      )}
+  <img
+    src={`http://localhost:5000${profile.profileImage}`}
+    alt="Profile"
+    style={{
+      width: "150px",
+      height: "150px",
+      borderRadius: "50%",
+      objectFit: "cover"
+    }}
+  />
+)}
+
     </div>
   );
 };
