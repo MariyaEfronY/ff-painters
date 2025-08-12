@@ -19,7 +19,8 @@ const UserLogin = () => {
 
       localStorage.setItem("userInfo", JSON.stringify(data));
 
-      navigate("/dashboard");
+      navigate("/user/dashboard");
+
     } catch (err) {
       console.error("Login failed", err);
       alert("Invalid email or password");

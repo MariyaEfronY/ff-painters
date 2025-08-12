@@ -70,7 +70,6 @@ export const getUserProfile = async (req, res) => {
 // server/controllers/userController.js
 export const getUserDashboard = async (req, res) => {
   try {
-    // Example: fetch logged-in user's profile from DB
     const user = await User.findById(req.userId).select("-password");
 
     if (!user) {
@@ -83,9 +82,10 @@ export const getUserDashboard = async (req, res) => {
       profileImage: user.profileImage ? `/uploads/userprofileImages/${user.profileImage}` : null,
       phone: user.phone,
       city: user.city,
-      bio: user.bio
+      bio: user.bio,
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
