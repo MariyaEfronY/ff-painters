@@ -90,3 +90,48 @@ export const getUserDashboard = async (req, res) => {
   }
 };
 
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields if provided
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
+    user.city = req.body.city || user.city;
+    user.bio = req.body.bio || user.bio;
+
+    // Update profile image if uploaded
+    if (req.file) {
+      // Delete old image if exists
+      if (user.profileImage) {
+        const oldPath = path.join("uploads/userprofileImages", user.profileImage);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+      user.profileImage = req.file.filename;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        city: user.city,
+        bio: user.bio,
+        profileImage: user.profileImage
+          ? `/uploads/userprofileImages/${user.profileImage}`
+          : null
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

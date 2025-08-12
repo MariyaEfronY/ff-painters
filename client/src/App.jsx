@@ -12,6 +12,7 @@ import EditProfilePage from "./pages/EditProfilePage";
 import UserSignup from "./pages/user/UserSignup";
 import UserLogin from "./pages/user/UserLogin";
 import UserDashboard from "./pages/user/UserDashboard";
+import UserEditProfile from "./pages/user/UserEditProfile";
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
         <Route path="/user/signup" element={<UserSignup />} />
         <Route path="/user/login" element={<UserLogin />} />
         <Route path="/user/dashboard" element={<UserDashboard />} />
+        <Route path="/user/edit-profile" element={<UserEditProfile />} />
       </Routes>
     </Router>
   );
