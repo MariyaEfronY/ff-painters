@@ -13,21 +13,20 @@ function UserLogin() {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
-
   try {
     const { data } = await axios.post(
       "http://localhost:5000/api/users/login",
-      { email, password }, // ✅ must match backend field names
-      { withCredentials: true } // if you’re using cookies/JWT in cookies
+      { email, password },
+      { headers: { "Content-Type": "application/json" } }
     );
-
-    console.log("Login success", data);
-    // Save token in localStorage if needed
-    localStorage.setItem("userToken", data.token);
+    console.log("Login success:", data);
+    localStorage.setItem("userInfo", JSON.stringify(data));
+    navigate("/dashboard");
   } catch (err) {
-    console.error(err.response?.data?.message || "Login failed");
+    console.error("Login failed", err);
   }
 };
+
 
 
   return (

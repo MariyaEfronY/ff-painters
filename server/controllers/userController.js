@@ -32,27 +32,27 @@ export const registerUser = async (req, res) => {
 // Login user
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ message: "Invalid email or password" });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Send token + user data
-      generateToken(res, user._id);
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(res, user._id)
-      });
-    } else {
-      res.status(401).json({ message: "Invalid email or password" });
-    }
-  } catch (err) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid email or password" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token,
+    });
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Get user profile
 export const getUserProfile = async (req, res) => {
