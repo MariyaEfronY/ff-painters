@@ -12,23 +12,23 @@ function UserLogin() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/users/login", formData);
+  try {
+    const { data } = await axios.post(
+      "http://localhost:5000/api/users/login",
+      { email, password }, // ✅ must match backend field names
+      { withCredentials: true } // if you’re using cookies/JWT in cookies
+    );
 
-      // ✅ Store token in localStorage
-      localStorage.setItem("userToken", res.data.token);
+    console.log("Login success", data);
+    // Save token in localStorage if needed
+    localStorage.setItem("userToken", data.token);
+  } catch (err) {
+    console.error(err.response?.data?.message || "Login failed");
+  }
+};
 
-      toast.success("Login successful!");
-
-      // ✅ Redirect to dashboard
-      navigate("/user/dashboard");
-
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
-    }
-  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

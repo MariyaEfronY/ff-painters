@@ -1,96 +1,100 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
-import path from 'path';
-import fs from 'fs';
+import User from "../models/userModel.js";
 
-// Generate JWT token
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
-
-// Signup
+// Register user
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, bio } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+    const userExists = await User.findOne({ email });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-    // Handle profile image filename (optional)
-    const profileImage = req.file ? req.file.filename : '';
+    const user = await User.create({ name, email, password, bio });
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      bio,
-      profileImage,
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        bio: user.bio,
+        profileImage: user.profileImage,
+      },
+      token: "dummy_token_here", // Replace with JWT later
     });
-
-    res.status(201).json({ message: 'User registered successfully', user });
   } catch (error) {
-    console.error('Signup Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error registering user:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Login
+// Login user
 export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
-
-    const token = createToken(user._id);
-
-    res.status(200).json({ message: 'Login successful', token, userId: user._id, user });
-  } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // Send token + user data
+      generateToken(res, user._id);
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(res, user._id)
+      });
+    } else {
+      res.status(401).json({ message: "Invalid email or password" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Get user profile
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.json(user);
   } catch (error) {
-    console.error('Profile fetch error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 // Update user profile
 export const updateUserProfile = async (req, res) => {
   try {
+    const { name, email, bio } = req.body;
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Delete old image if new uploaded
-    if (req.file && user.profileImage) {
-      const oldImagePath = path.join('uploads/profileImages', user.profileImage);
-      if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.bio = bio || user.bio;
+
+    // If a new profile image is uploaded
+    if (req.file) {
       user.profileImage = req.file.filename;
     }
 
-    // Update other fields
-    if (req.body.name) user.name = req.body.name;
-    if (req.body.email) user.email = req.body.email;
-    if (req.body.bio) user.bio = req.body.bio;
+    const updatedUser = await user.save();
 
-    await user.save();
-
-    res.json({ message: 'Profile updated', user });
+    res.json(updatedUser);
   } catch (error) {
-    console.error('Profile update error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+

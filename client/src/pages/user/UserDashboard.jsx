@@ -11,6 +11,7 @@ const UserDashboard = () => {
     try {
       const token = localStorage.getItem("userToken");
       const userId = localStorage.getItem("userId");
+
       if (!token || !userId) {
         setLoading(false);
         return;
@@ -19,9 +20,7 @@ const UserDashboard = () => {
       const response = await axios.get(
         `http://localhost:5000/api/users/profile/${userId}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -38,7 +37,7 @@ const UserDashboard = () => {
   }, []);
 
   const profileImageUrl = profile?.profileImage
-    ? `http://localhost:5000/uploads/profileImages/${profile.profileImage}`
+    ? `http://localhost:5000/uploads/userprofileImages/${profile.profileImage}`
     : null;
 
   if (loading) return <p>Loading profile...</p>;
