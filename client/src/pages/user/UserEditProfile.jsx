@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_BASE_URL = "http://localhost:5000";
+
 const UserEditProfile = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -11,14 +13,15 @@ const UserEditProfile = () => {
   });
   const [previewImage, setPreviewImage] = useState(null);
 
-  // ✅ Load current user profile for editing
+  // Fetch profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const { data } = await axios.get("/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+        const { data } = await axios.get(`${API_BASE_URL}/api/users/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
+
         setFormData({
           name: data.name || "",
           phone: data.phone || "",
@@ -26,8 +29,9 @@ const UserEditProfile = () => {
           bio: data.bio || "",
           profileImage: null
         });
+
         if (data.profileImage) {
-          setPreviewImage(data.profileImage);
+          setPreviewImage(`${API_BASE_URL}${data.profileImage}`);
         }
       } catch (err) {
         console.error("Error loading profile:", err);
@@ -36,37 +40,36 @@ const UserEditProfile = () => {
     fetchProfile();
   }, []);
 
-  // ✅ Handle text input change
+  // Handle text input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle image change
+  // Handle image selection
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setFormData({ ...formData, profileImage: file });
     setPreviewImage(URL.createObjectURL(file));
   };
 
-  // ✅ Submit form
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
       const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name);
-      formDataToSend.append("phone", formData.phone);
-      formDataToSend.append("city", formData.city);
-      formDataToSend.append("bio", formData.bio);
-      if (formData.profileImage) {
-        formDataToSend.append("profileImage", formData.profileImage);
-      }
 
-      await axios.put("/api/users/profile", formDataToSend, {
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      await axios.put(`${API_BASE_URL}/api/users/profile`, formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+          "Content-Type": "multipart/form-data"
+        }
       });
 
       alert("Profile updated successfully!");
@@ -80,37 +83,28 @@ const UserEditProfile = () => {
     <div style={{ maxWidth: "500px", margin: "auto" }}>
       <h2>Edit Profile</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <div>
-          <label>Name:</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} />
-        </div>
+        <label>Name:</label>
+        <input name="name" value={formData.name} onChange={handleChange} />
 
-        <div>
-          <label>Phone:</label>
-          <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
-        </div>
+        <label>Phone:</label>
+        <input name="phone" value={formData.phone} onChange={handleChange} />
 
-        <div>
-          <label>City:</label>
-          <input type="text" name="city" value={formData.city} onChange={handleChange} />
-        </div>
+        <label>City:</label>
+        <input name="city" value={formData.city} onChange={handleChange} />
 
-        <div>
-          <label>Bio:</label>
-          <textarea name="bio" value={formData.bio} onChange={handleChange}></textarea>
-        </div>
+        <label>Bio:</label>
+        <textarea name="bio" value={formData.bio} onChange={handleChange} />
 
-        <div>
-          <label>Profile Image:</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} />
-          {previewImage && (
-            <img
-              src={previewImage.startsWith("blob") ? previewImage : previewImage}
-              alt="Preview"
-              style={{ width: "100px", height: "100px", objectFit: "cover", marginTop: "10px" }}
-            />
-          )}
-        </div>
+        <label>Profile Image:</label>
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+
+        {previewImage && (
+          <img
+            src={previewImage}
+            alt="Preview"
+            style={{ width: 100, height: 100, objectFit: "cover" }}
+          />
+        )}
 
         <button type="submit">Update Profile</button>
       </form>

@@ -4,93 +4,52 @@ import User from "../models/userModel.js";
 
 
 
-// ✅ Update User Profile (text fields + image replacement)
-export const updateUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // ✅ Update text fields
-    if (req.body.name) user.name = req.body.name;
-    if (req.body.phone) user.phone = req.body.phone;
-    if (req.body.city) user.city = req.body.city;
-    if (req.body.bio) user.bio = req.body.bio;
-
-    // ✅ If new image uploaded, delete old one first
-    if (req.file) {
-      if (user.profileImage) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          "server",
-          "uploads",
-          "userprofileImages", // ✅ keep user folder separate from painter folder
-          user.profileImage
-        );
-
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-
-      // Save new image filename in DB
-      user.profileImage = req.file.filename;
-    }
-
-    await user.save();
-
-    res.json({
-      message: "Profile updated successfully",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        city: user.city,
-        bio: user.bio,
-        profileImage: user.profileImage
-          ? `/uploads/userprofileImages/${user.profileImage}`
-          : null
-      }
-    });
-
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 
-// Register User
+
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
   try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    const { name, email, password, phone, city, bio } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
+      phone,
+      city,
+      bio,
+      profileImage: req.file ? req.file.filename : null
     });
 
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" }),
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      phone: newUser.phone,
+      city: newUser.city,
+      bio: newUser.bio,
+      profileImage: newUser.profileImage
+        ? `/uploads/userProfileImages/${newUser.profileImage}`
+        : null,
+      token: jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "30d" })
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    console.error("Signup error:", error);
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 // Login User
 export const loginUser = async (req, res) => {
@@ -116,14 +75,25 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Get User Profile
+// Fetch logged-in user's profile
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || "",
+      city: user.city || "",
+      bio: user.bio || "",
+      profileImage: user.profileImage
+        ? `/uploads/userProfileImages/${user.profileImage}`
+        : null
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -152,4 +122,51 @@ export const getUserDashboard = async (req, res) => {
 };
 
 
+// Update user profile with image replacement
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
+    // Update fields
+    user.name = req.body.name || user.name;
+    user.phone = req.body.phone || user.phone;
+    user.city = req.body.city || user.city;
+    user.bio = req.body.bio || user.bio;
+
+    // Handle image replacement
+    if (req.file) {
+      if (user.profileImage) {
+        const oldPath = path.join(
+          process.cwd(),
+          "server",
+          "uploads",
+          "userProfileImages",
+          user.profileImage
+        );
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      user.profileImage = req.file.filename;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        city: user.city,
+        bio: user.bio,
+        profileImage: user.profileImage
+          ? `/uploads/userProfileImages/${user.profileImage}`
+          : null
+      }
+    });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
