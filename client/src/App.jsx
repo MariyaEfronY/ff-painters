@@ -31,6 +31,7 @@ function App() {
         <Route path="/user/login" element={<UserLogin />} />
         <Route path="/user/dashboard" element={<UserDashboard />} />
         <Route path="/user/edit-profile" element={<UserEditProfile />} />
+
       </Routes>
     </Router>
   );

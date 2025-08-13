@@ -12,6 +12,7 @@ const UserEditProfile = () => {
     bio: ""
   });
   const [profileImage, setProfileImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,12 +25,15 @@ const UserEditProfile = () => {
           headers: { Authorization: `Bearer ${userInfo.token}` }
         });
         setFormData({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          city: data.city,
-          bio: data.bio
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          city: data.city || "",
+          bio: data.bio || ""
         });
+        if (data.profileImage) {
+          setPreviewImage(`http://localhost:5000${data.profileImage}`);
+        }
       } catch (err) {
         console.error("Error fetching profile", err);
       }
@@ -42,7 +46,9 @@ const UserEditProfile = () => {
   };
 
   const handleFileChange = (e) => {
-    setProfileImage(e.target.files[0]);
+    const file = e.target.files[0];
+    setProfileImage(file);
+    setPreviewImage(file ? URL.createObjectURL(file) : null);
   };
 
   const handleSubmit = async (e) => {
@@ -52,7 +58,7 @@ const UserEditProfile = () => {
 
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
-      formDataToSend.append(key, formData[key]);
+      formDataToSend.append(key, formData[key] || "");
     });
     if (profileImage) {
       formDataToSend.append("profileImage", profileImage);
@@ -68,22 +74,33 @@ const UserEditProfile = () => {
       alert("Profile updated successfully");
       navigate("/user/dashboard");
     } catch (err) {
-      console.error("Error updating profile", err);
+      console.error("Error updating profile", err.response?.data || err.message);
       alert("Failed to update profile");
     }
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: "500px", margin: "auto" }}>
       <h2>Edit Profile</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name" />
-        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" />
+        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name" required />
+        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
         <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" />
         <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="City" />
         <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Bio"></textarea>
-        <input type="file" onChange={handleFileChange} />
-        <button type="submit">Update Profile</button>
+
+        {previewImage && (
+          <img
+            src={previewImage}
+            alt="Preview"
+            style={{ width: "120px", height: "120px", borderRadius: "50%", objectFit: "cover", margin: "10px 0" }}
+          />
+        )}
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+
+        <button type="submit" style={{ display: "block", marginTop: "15px" }}>
+          Update Profile
+        </button>
       </form>
     </div>
   );
