@@ -2,6 +2,67 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 
+
+
+// ✅ Update User Profile (text fields + image replacement)
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ Update text fields
+    if (req.body.name) user.name = req.body.name;
+    if (req.body.phone) user.phone = req.body.phone;
+    if (req.body.city) user.city = req.body.city;
+    if (req.body.bio) user.bio = req.body.bio;
+
+    // ✅ If new image uploaded, delete old one first
+    if (req.file) {
+      if (user.profileImage) {
+        const oldImagePath = path.join(
+          process.cwd(),
+          "server",
+          "uploads",
+          "userprofileImages", // ✅ keep user folder separate from painter folder
+          user.profileImage
+        );
+
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+
+      // Save new image filename in DB
+      user.profileImage = req.file.filename;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        city: user.city,
+        bio: user.bio,
+        profileImage: user.profileImage
+          ? `/uploads/userprofileImages/${user.profileImage}`
+          : null
+      }
+    });
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 // Register User
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -90,37 +151,5 @@ export const getUserDashboard = async (req, res) => {
   }
 };
 
-export const updateUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
-    // Update fields
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    user.phone = req.body.phone || user.phone;
-    user.city = req.body.city || user.city;
-    user.bio = req.body.bio || user.bio;
 
-    // Handle profile image update
-    if (req.file) {
-      // Delete old image if exists
-      if (user.profileImage) {
-        const oldImagePath = path.join(process.cwd(), user.profileImage);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-      // Save new image path
-      user.profileImage = `/uploads/userprofileImages/${req.file.filename}`;
-    }
-
-    const updatedUser = await user.save();
-    res.json(updatedUser);
-  } catch (err) {
-    console.error("Error updating profile:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
