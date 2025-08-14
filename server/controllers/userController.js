@@ -4,16 +4,14 @@ import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs";
 
-// Generate JWT token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-// @desc    Register user
+// Register
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -47,11 +45,10 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Login user
+// Login
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
@@ -73,50 +70,22 @@ export const loginUser = async (req, res) => {
   }
 };
 
-
-
-
-
+// Dashboard profile
 export const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone || "",
-      city: user.city || "",
-      bio: user.bio || "",
-      profileImage: user.profileImage
-        ? `/uploads/userProfileImages/${user.profileImage}`
-        : null,
-    });
-  } catch (error) {
-    console.error("Get Profile Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+  res.json(req.user);
 };
 
-// @desc    Update profile (replace image if new uploaded)
+// Update profile
 export const updateUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Update text fields
     if (req.body.name) user.name = req.body.name;
     if (req.body.phone) user.phone = req.body.phone;
     if (req.body.city) user.city = req.body.city;
     if (req.body.bio) user.bio = req.body.bio;
 
-    // Replace image if new one uploaded
     if (req.file) {
       if (user.profileImage) {
         const oldImagePath = path.join(
@@ -126,9 +95,7 @@ export const updateUserProfile = async (req, res) => {
           "userProfileImages",
           user.profileImage
         );
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
+        if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
       }
       user.profileImage = req.file.filename;
     }
