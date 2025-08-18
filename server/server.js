@@ -47,7 +47,7 @@ createUploadDirs();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API routes
-app.use('/api/painter', painterRoutes);
+app.use("/api/painters", painterRoutes);
 app.use('/api/painter/images', painterImageRoutes);
 app.use('/api/bookings', bookingRoutes);
 

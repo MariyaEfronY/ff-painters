@@ -1,43 +1,43 @@
-import express from 'express';
-import multer from 'multer';
+import express from "express";
 import {
   painterSignup,
   painterLogin,
   getPainterProfile,
-  getPainterGallery,
-  uploadGalleryImage,
-  uploadProfileImage,
   updatePainterProfile,
-} from '../controllers/painterController.js';
-import { painterProtect } from '../middleware/auth.js'; // ✅ use painterProtect
+  getPainterGallery,
+  getPainterBookings,
+} from "../controllers/painterController.js";
+
+import { painterProtect } from "../middleware/auth.js";
+import {
+  uploadProfileImage,
+  uploadGalleryImage,
+} from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Multer setup for profile/gallery images
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/profileImages'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
-});
-const upload = multer({ storage });
+// Auth
+router.post("/signup", painterSignup);
+router.post("/login", painterLogin);
 
-/* ---------- AUTH ROUTES ---------- */
-router.post('/auth/signup', upload.single('profileImage'), painterSignup);
-router.post('/auth/login', painterLogin);
-
-/* ---------- PROFILE ROUTES ---------- */
-router.get('/profile', painterProtect, getPainterProfile);
-router.put('/profile', painterProtect, upload.single('profileImage'), updatePainterProfile); // ✅ update own profile
-
-/* ---------- GALLERY ROUTES ---------- */
-router.get('/gallery/:id', getPainterGallery); // public gallery
-router.post('/gallery', painterProtect, upload.single('image'), uploadGalleryImage); // ✅ auth required to upload
-
-/* ---------- OPTIONAL: SEPARATE PROFILE IMAGE UPLOAD ---------- */
-router.post(
-  '/upload-profile',
+// Profile
+router.get("/profile", painterProtect, getPainterProfile);
+router.put(
+  "/profile/:id",
   painterProtect,
-  upload.single('profileImage'),
-  uploadProfileImage
+  uploadProfileImage.single("profileImage"),
+  updatePainterProfile
 );
+
+// Gallery
+router.post(
+  "/gallery/:id",
+  painterProtect,
+  uploadGalleryImage.single("galleryImage")
+);
+router.get("/gallery/:id", painterProtect, getPainterGallery);
+
+// Bookings
+router.get("/bookings/:id", painterProtect, getPainterBookings);
 
 export default router;

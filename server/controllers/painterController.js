@@ -76,60 +76,33 @@ export const painterLogin = async (req, res) => {
 /* ---------- GET PROFILE ---------- */
 export const getPainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.painterId);
-    if (!painter) return res.status(404).json({ message: 'Painter not found' });
-    res.status(200).json(painter);
+    const painter = await Painter.findById(req.user.id).select("-password");
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+    res.json(painter);
   } catch (error) {
-    console.error('Profile fetch error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 /* ---------- UPDATE PROFILE ---------- */
 export const updatePainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.painterId);
-    if (!painter) {
-      return res.status(404).json({ message: 'Painter not found' });
-    }
+    const updates = { ...req.body };
 
-    // Handle new profile image
+    // If a new profile image was uploaded, save filename
     if (req.file) {
-      if (painter.profileImage) {
-        const oldImagePath = path.join(
-          'uploads/profileImages',
-          painter.profileImage
-        );
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-      painter.profileImage = req.file.filename;
+      updates.profileImage = req.file.filename;
     }
 
-    // Allowed fields only
-    const allowedFields = [
-      'name',
-      'phoneNumber',
-      'city',
-      'workExperience',
-      'bio',
-      'specification',
-    ];
-    allowedFields.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        painter[field] = req.body[field];
-      }
-    });
+    const painter = await Painter.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+    }).select("-password");
 
-    await painter.save();
-    res.json({ message: 'Profile updated successfully', painter });
+    res.json(painter);
   } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Error updating profile" });
   }
 };
-
 /* ---------- UPLOAD PROFILE IMAGE ---------- */
 export const uploadProfileImage = async (req, res) => {
   try {
