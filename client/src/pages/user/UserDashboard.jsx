@@ -1,74 +1,69 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import userAPI from "../../utils/userApi";
 
 const UserDashboard = () => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [edit, setEdit] = useState(false);
+  const [form, setForm] = useState({});
+  const [profileImage, setProfileImage] = useState(null);
+
+  const fetchProfile = async () => {
+    try {
+      const { data } = await userAPI.get("/me");
+      setUser(data);
+      setForm(data);
+    } catch (err) {
+      console.error("Fetch profile failed", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      if (!userInfo || !userInfo.token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data } = await axios.get("http://localhost:5000/api/users/dashboard", {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        });
-        setProfile(data);
-      } catch (err) {
-        console.error("Unable to load profile", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProfile();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
-  if (!profile) return <p>Unable to load profile. Please login again.</p>;
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const fd = new FormData();
+      Object.keys(form).forEach((key) => fd.append(key, form[key]));
+      if (profileImage) fd.append("profileImage", profileImage);
+
+      await userAPI.put("/me", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setEdit(false);
+      fetchProfile();
+    } catch (err) {
+      console.error("Update failed", err);
+    }
+  };
+
+  if (!user) return <p>Loading...</p>;
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>Welcome {profile.name}</h1>
-      <p>Email: {profile.email}</p>
-      <p>Phone: {profile.phone || "N/A"}</p>
-      <p>City: {profile.city || "N/A"}</p>
-      <p>Bio: {profile.bio || "No bio provided"}</p>
-
-      {profile.profileImage && (
-        <img
-          src={`http://localhost:5000${profile.profileImage}`}
-          alt="Profile"
-          style={{
-            width: "150px",
-            height: "150px",
-            borderRadius: "50%",
-            objectFit: "cover",
-            marginBottom: "10px"
-          }}
-        />
+    <div>
+      {!edit ? (
+        <>
+          <h2>Welcome, {user.name}</h2>
+          <p>Email: {user.email}</p>
+          {user.profileImage && (
+            <img src={`http://localhost:5000/uploads/${user.profileImage}`} alt="Profile" width={100} />
+          )}
+          <button onClick={() => setEdit(true)}>Edit Profile</button>
+        </>
+      ) : (
+        <form onSubmit={handleUpdate}>
+          <input name="name" value={form.name} onChange={handleChange} />
+          <input name="email" value={form.email} onChange={handleChange} />
+          <input type="file" onChange={(e) => setProfileImage(e.target.files[0])} />
+          <button type="submit">Save</button>
+          <button type="button" onClick={() => setEdit(false)}>Cancel</button>
+        </form>
       )}
-
-      <br />
-      <button
-        onClick={() => navigate("/user/edit-profile")}
-        style={{
-          padding: "8px 16px",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}
-      >
-        Edit Profile
-      </button>
     </div>
   );
 };

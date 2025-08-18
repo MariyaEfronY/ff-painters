@@ -1,35 +1,13 @@
 import express from "express";
-import {
-  registerUser,
-  loginUser,
-  getUserProfile,
-  updateUserProfile,
-} from "../controllers/userController.js";
-import userProtect from "../middleware/userAuthMiddleware.js";
-import multer from "multer";
-import path from "path";
+import { registerUser, loginUser, getMe, updateMe } from "../controllers/userController.js";
+import { userProtect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Multer config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "server/uploads/userProfileImages");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
-
-// Auth routes
-router.post("/register", upload.single("profileImage"), registerUser);
+router.post("/register", registerUser);
 router.post("/login", loginUser);
-
-// Dashboard (protected)
-router.get("/dashboard", userProtect, getUserProfile);
-
-// Update profile
-router.put("/update-profile", userProtect, upload.single("profileImage"), updateUserProfile);
+router.get("/me", userProtect, getMe);
+router.put("/me", userProtect, updateMe);
 
 export default router;
+  
