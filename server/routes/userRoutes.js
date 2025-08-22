@@ -1,13 +1,17 @@
+// routes/userRoutes.js
 import express from "express";
-import { registerUser, loginUser, getMe, updateMe } from "../controllers/userController.js";
+import { registerUser, loginUser, getMe } from "../controllers/userController.js";
 import { userProtect } from "../middleware/auth.js";
+import { uploadUserProfileImage } from "../middleware/userProfileUpload.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
+// Public
+router.post("/register", uploadUserProfileImage.single("profileImage"), registerUser);
+
 router.post("/login", loginUser);
+
+// Protected
 router.get("/me", userProtect, getMe);
-router.put("/me", userProtect, updateMe);
 
 export default router;
-  

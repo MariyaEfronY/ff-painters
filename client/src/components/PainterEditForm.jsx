@@ -74,7 +74,7 @@ toast.success("Profile updated successfully!");
 if (onProfileUpdated) onProfileUpdated();
 
 // ✅ FIXED redirect
-navigate("/painter/dashboard");
+navigate("/painter/login");
 
     } catch (err) {
       console.error("Error updating profile:", err);

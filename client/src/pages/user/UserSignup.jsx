@@ -25,8 +25,9 @@ const UserSignup = () => {
       if (profileImage) fd.append("profileImage", profileImage);
 
       await userAPI.post("/register", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+  headers: { "Content-Type": "multipart/form-data" },
+});
+
       navigate("/user/login");
     } catch (err) {
       console.error("Signup failed", err);
