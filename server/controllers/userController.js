@@ -56,7 +56,27 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// ✅ Get Current User
+// controllers/userController.js
+
 export const getMe = async (req, res) => {
-  res.json(req.user); // user comes from auth middleware
+  try {
+    if (!req.user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ If user has a profile image, build the full URL
+    const userData = {
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      profileImage: req.user.profileImage
+        ? `${req.protocol}://${req.get("host")}/uploads/userProfileImages/${req.user.profileImage}`
+        : null,
+    };
+
+    res.json(userData);
+  } catch (err) {
+    console.error("GetMe Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
