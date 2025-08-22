@@ -56,27 +56,52 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// controllers/userController.js
 
-export const getMe = async (req, res) => {
+// controllers/userController.js
+export const getUserProfile = async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(404).json({ message: "User not found" });
+    const user = req.user;
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage
+        ? `${req.protocol}://${req.get("host")}/uploads/userProfileImages/${user.profileImage}`
+        : null,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch profile", error: err.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const user = req.user;
+
+    // ✅ update basic fields
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    // ✅ update profile image if uploaded
+    if (req.file) {
+      user.profileImage = req.file.filename;
     }
 
-    // ✅ If user has a profile image, build the full URL
-    const userData = {
-      _id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      profileImage: req.user.profileImage
-        ? `${req.protocol}://${req.get("host")}/uploads/userProfileImages/${req.user.profileImage}`
-        : null,
-    };
+    await user.save();
 
-    res.json(userData);
+    res.json({
+      message: "Profile updated",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profileImage: user.profileImage
+          ? `${req.protocol}://${req.get("host")}/uploads/userProfileImages/${user.profileImage}`
+          : null,
+      },
+    });
   } catch (err) {
-    console.error("GetMe Error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Update failed", error: err.message });
   }
 };

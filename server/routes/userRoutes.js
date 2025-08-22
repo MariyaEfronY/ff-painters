@@ -1,8 +1,7 @@
-// routes/userRoutes.js
 import express from "express";
-import { registerUser, loginUser, getMe } from "../controllers/userController.js";
+import { registerUser, loginUser, getUserProfile, updateUser } from "../controllers/userController.js";
 import { userProtect } from "../middleware/auth.js";
-import { uploadUserProfileImage } from "../middleware/userProfileUpload.js";
+import { uploadUserProfileImage } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -12,6 +11,8 @@ router.post("/register", uploadUserProfileImage.single("profileImage"), register
 router.post("/login", loginUser);
 
 // Protected
-router.get("/me", userProtect, getMe);
+router.get("/me", userProtect, getUserProfile);
+
+router.put("/me", userProtect, uploadUserProfileImage.single("profileImage"), updateUser);
 
 export default router;

@@ -45,6 +45,10 @@ createUploadDirs();
 
 // ✅ Serve static image files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(
+  "/uploads/userProfileImages",
+  express.static(path.join(__dirname, "uploads/userProfileImages"))
+);
 
 // API routes
 app.use("/api/painter", painterRoutes);

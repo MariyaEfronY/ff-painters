@@ -7,7 +7,7 @@ const UserDashboard = () => {
   const [form, setForm] = useState({});
   const [profileImage, setProfileImage] = useState(null);
 
-  // ✅ Fetch logged-in user profile
+  // Fetch profile
   const fetchProfile = async () => {
     try {
       const { data } = await userAPI.get("/me");
@@ -22,12 +22,10 @@ const UserDashboard = () => {
     fetchProfile();
   }, []);
 
-  // ✅ Handle input change
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle update with FormData
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -40,7 +38,7 @@ const UserDashboard = () => {
       });
 
       setEdit(false);
-      fetchProfile(); // ✅ refresh after update
+      fetchProfile();
     } catch (err) {
       console.error("Update failed", err);
     }
@@ -56,9 +54,16 @@ const UserDashboard = () => {
           <p>Email: {user.email}</p>
 
           {user.profileImage && (
-  <img src={user.profileImage} alt="Profile" width={120} style={{ borderRadius: "50%" }} />
-)}
+            <img
+              src={user.profileImage}
+              alt="Profile"
+              width={120}
+              height={120}
+              style={{ borderRadius: "50%", objectFit: "cover" }}
+            />
+          )}
 
+          <br />
           <button onClick={() => setEdit(true)}>Edit Profile</button>
         </>
       ) : (
