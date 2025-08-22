@@ -1,9 +1,6 @@
 import Painter from '../models/Painter.js';
 import Booking from '../models/Booking.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import fs from 'fs';
-import path from 'path';
 import createToken from '../utils/createToken.js';
 
 /* ---------- SIGNUP ---------- */
@@ -20,14 +17,19 @@ export const painterSignup = async (req, res) => {
       specification,
     } = req.body;
 
+    // check existing
     const existingPainter = await Painter.findOne({ email });
     if (existingPainter) {
       return res.status(400).json({ message: 'Painter already exists' });
     }
 
+    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // if multer attached, we get req.file
     const profileImage = req.file ? req.file.filename : '';
 
+    // create
     const painter = await Painter.create({
       name,
       email,
@@ -38,14 +40,24 @@ export const painterSignup = async (req, res) => {
       bio,
       specification: Array.isArray(specification)
         ? specification
-        : [specification],
+        : specification
+        ? [specification]
+        : [],
       profileImage,
     });
 
-    res.status(201).json({ message: 'Painter registered successfully' });
+    // generate token
+    const token = createToken(painter._id);
+
+    res.status(201).json({
+      message: 'Painter registered successfully',
+      token,
+      painterId: painter._id,
+      painter,
+    });
   } catch (error) {
     console.error('Signup Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -76,84 +88,47 @@ export const painterLogin = async (req, res) => {
 /* ---------- GET PROFILE ---------- */
 export const getPainterProfile = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.user.id).select("-password");
-    if (!painter) return res.status(404).json({ message: "Painter not found" });
+    // Use req.painter instead of req.user
+    const painter = await Painter.findById(req.painter._id).select("-password");
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
+    }
     res.json(painter);
   } catch (error) {
+    console.error("Error fetching painter profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 /* ---------- UPDATE PROFILE ---------- */
 export const updatePainterProfile = async (req, res) => {
   try {
     const updates = { ...req.body };
 
-    // If a new profile image was uploaded, save filename
+    // If image uploaded, multer stores it in req.file
     if (req.file) {
       updates.profileImage = req.file.filename;
     }
 
+    // req.params.id comes from /profile/:id
     const painter = await Painter.findByIdAndUpdate(req.params.id, updates, {
       new: true,
+      runValidators: true,
     }).select("-password");
+
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
+    }
 
     res.json(painter);
   } catch (error) {
+    console.error("Update Profile Error:", error);
     res.status(500).json({ message: "Error updating profile" });
-  }
-};
-/* ---------- UPLOAD PROFILE IMAGE ---------- */
-export const uploadProfileImage = async (req, res) => {
-  try {
-    const painter = await Painter.findById(req.painterId);
-    if (!painter) return res.status(404).json({ message: 'Painter not found' });
-
-    if (req.file) {
-      if (painter.profileImage) {
-        const oldPath = path.join(
-          'uploads',
-          'profileImages',
-          painter.profileImage
-        );
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
-      painter.profileImage = req.file.filename;
-      await painter.save();
-    }
-
-    res
-      .status(200)
-      .json({ message: 'Profile image updated', profileImage: painter.profileImage });
-  } catch (error) {
-    console.error('Image upload error:', error);
-    res.status(500).json({ message: 'Server error uploading image' });
   }
 };
 
 /* ---------- GALLERY ---------- */
-export const uploadGalleryImage = async (req, res) => {
-  try {
-    const painter = await Painter.findById(req.painterId);
-    if (!painter) return res.status(404).json({ error: 'Painter not found' });
-
-    const newImage = {
-      imageUrl: req.file.path,
-      description: req.body.description,
-    };
-
-    painter.gallery.push(newImage);
-    await painter.save();
-
-    res
-      .status(201)
-      .json({ message: 'Gallery image uploaded', gallery: painter.gallery });
-  } catch (error) {
-    console.error('Error uploading gallery image:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
 export const getPainterGallery = async (req, res) => {
   try {
     const painterId = req.params.id;

@@ -41,8 +41,8 @@ const Signup = () => {
       if (profileImage) {
         formData.append('profileImage', profileImage);
       }
-
-      await axios.post('http://localhost:5000/api/painter/auth/signup', formData, {
+      
+      const res = await axios.post("http://localhost:5000/api/painter/signup", formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

@@ -10,7 +10,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/painter/auth/login', form);
+      const response = await axios.post('http://localhost:5000/api/painter/login', form);
 
       // ✅ Save token and painterId
       localStorage.setItem('painterId', response.data.painter._id);

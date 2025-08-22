@@ -10,9 +10,12 @@ const PainterDashboard = () => {
   const fetchPainter = async () => {
   try {
     const token = localStorage.getItem('painterToken');
-    const response = await axios.get("http://localhost:5000/api/painters/profile", {
+    const response = await axios.get("http://localhost:5000/api/painter/profile", {
   headers: { Authorization: `Bearer ${token}` },
 });
+
+
+
     setProfile(response.data);
   } catch (error) {
     console.error('Error fetching profile:', error);

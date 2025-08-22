@@ -46,31 +46,39 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
     try {
       const token = localStorage.getItem("painterToken");
 
-      // Create FormData to send both text + file
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataToSend.append(key, formData[key]);
+      const data = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((v) => data.append(key, v));
+        } else {
+          data.append(key, value);
+        }
       });
+
       if (profileImage) {
-        formDataToSend.append("profileImage", profileImage);
+        data.append("profileImage", profileImage);
       }
 
       await axios.put(
-        `http://localhost:5000/api/painter/${painterId}`,
-        formDataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+  `http://localhost:5000/api/painter/profile/${painterId}`,
+  data,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  }
+);
 
-      toast.success("Profile updated successfully! 🎉");
-      if (onProfileUpdated) onProfileUpdated();
+toast.success("Profile updated successfully!");
+if (onProfileUpdated) onProfileUpdated();
+
+// ✅ FIXED redirect
+navigate("/painter/dashboard");
+
     } catch (err) {
       console.error("Error updating profile:", err);
-      toast.error("Failed to update profile ❌");
+      toast.error("Failed to update profile.");
     }
   };
 
@@ -82,6 +90,7 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
       <input name="workExperience" value={formData.workExperience} onChange={handleChange} placeholder="Work Experience" />
       <input name="city" value={formData.city} onChange={handleChange} placeholder="City" />
       <textarea name="bio" value={formData.bio} onChange={handleChange} placeholder="Bio" />
+
       <select
         name="specification"
         value={formData.specification}
@@ -98,7 +107,6 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
       </select>
 
       <input type="file" onChange={handleImageChange} accept="image/*" />
-
       <button type="submit">Save Changes</button>
     </form>
   );

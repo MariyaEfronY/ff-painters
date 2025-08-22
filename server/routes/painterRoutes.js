@@ -17,7 +17,8 @@ import {
 const router = express.Router();
 
 // Auth
-router.post("/signup", painterSignup);
+// 🔹 use uploadProfileImage for signup only if you allow profile image upload during signup
+router.post("/signup", uploadProfileImage.single("profileImage"), painterSignup);
 router.post("/login", painterLogin);
 
 // Profile
