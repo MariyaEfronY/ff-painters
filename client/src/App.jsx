@@ -23,7 +23,7 @@ function App() {
         {/* ---------- Painter Routes ---------- */}
         <Route path="/painter/signup" element={<Signup />} />
         <Route path="/painter/login" element={<Login />} />
-        <Route path="/painter/dashboard" element={<PainterDashboard />} />
+        <Route path="/dashboard" element={<PainterDashboard />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
 
         {/* ---------- User Routes ---------- */}

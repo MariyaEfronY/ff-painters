@@ -2,9 +2,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; // ✅ import this
 import "react-toastify/dist/ReactToastify.css";
 
 const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
+  const navigate = useNavigate(); // ✅ initialize navigate
+
   const [formData, setFormData] = useState({
     name: initialData.name || "",
     email: initialData.email || "",
@@ -60,21 +63,22 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
       }
 
       await axios.put(
-  `http://localhost:5000/api/painter/profile/${painterId}`,
-  data,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "multipart/form-data",
-    },
-  }
-);
+        `http://localhost:5000/api/painter/profile/${painterId}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-toast.success("Profile updated successfully!");
-if (onProfileUpdated) onProfileUpdated();
+      toast.success("Profile updated successfully!");
+      
+      // ✅ Redirect to dashboard after save
+      navigate("/dashboard"); 
 
-// ✅ FIXED redirect
-navigate("/painter/login");
+      if (onProfileUpdated) onProfileUpdated();
 
     } catch (err) {
       console.error("Error updating profile:", err);

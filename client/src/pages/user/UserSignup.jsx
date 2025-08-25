@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import userAPI from "../../utils/userApi";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserSignup = () => {
   const [form, setForm] = useState({
@@ -29,8 +31,10 @@ const UserSignup = () => {
 });
 
       navigate("/user/login");
+      toast.success("User Signup Successfully..!")
     } catch (err) {
       console.error("Signup failed", err);
+      toast.error("User Signup error..!")
     }
   };
 

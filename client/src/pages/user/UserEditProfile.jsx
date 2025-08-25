@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserEditProfile = () => {
   const [formData, setFormData] = useState({
@@ -73,8 +75,10 @@ const UserEditProfile = () => {
 
     console.log("Profile updated successfully");
     navigate("/user/dashboard");
+    toast.success("Profile edited..!");
   } catch (error) {
     console.error("Error updating profile:", error.response?.data || error.message);
+    toast.error("edit error..!");
   }
 };
 
