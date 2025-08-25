@@ -51,7 +51,7 @@ const UserEditProfile = () => {
   try {
     const token = localStorage.getItem("userToken");
     if (!token) {
-      console.error("No authentication token found");
+      toast.error("Authentication required. Please log in again.");
       return;
     }
 
@@ -61,7 +61,6 @@ const UserEditProfile = () => {
     formDataToSend.append("city", formData.city || "");
     formDataToSend.append("bio", formData.bio || "");
 
-    // Append image only if it's selected
     if (formData.userProfileImages) {
       formDataToSend.append("userProfileImages", formData.userProfileImages);
     }
@@ -73,14 +72,20 @@ const UserEditProfile = () => {
       },
     });
 
-    console.log("Profile updated successfully");
+    toast.success("✅ Profile updated successfully!");
     navigate("/user/dashboard");
-    toast.success("Profile edited..!");
+
   } catch (error) {
     console.error("Error updating profile:", error.response?.data || error.message);
-    toast.error("edit error..!");
+
+    if (error.response?.data?.message) {
+      toast.error(`❌ ${error.response.data.message}`);
+    } else {
+      toast.error("❌ Failed to update profile. Please try again.");
+    }
   }
 };
+
 
 
   return (

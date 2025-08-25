@@ -66,6 +66,9 @@ export const getUserProfile = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      city: user.city,
+      bio: user.bio,
       profileImage: user.profileImage
         ? `${req.protocol}://${req.get("host")}/uploads/userProfileImages/${user.profileImage}`
         : null,
@@ -75,15 +78,19 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+
 export const updateUser = async (req, res) => {
   try {
     const user = req.user;
 
-    // ✅ update basic fields
+    // ✅ update all fields
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
+    user.city = req.body.city || user.city;
+    user.bio = req.body.bio || user.bio;
 
-    // ✅ update profile image if uploaded
+    // ✅ handle profile image if uploaded
     if (req.file) {
       user.profileImage = req.file.filename;
     }
@@ -91,11 +98,14 @@ export const updateUser = async (req, res) => {
     await user.save();
 
     res.json({
-      message: "Profile updated",
+      message: "Profile updated successfully",
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        city: user.city,
+        bio: user.bio,
         profileImage: user.profileImage
           ? `${req.protocol}://${req.get("host")}/uploads/userProfileImages/${user.profileImage}`
           : null,
