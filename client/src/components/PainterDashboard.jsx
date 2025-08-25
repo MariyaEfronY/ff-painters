@@ -124,6 +124,25 @@ const PainterDashboard = () => {
       >
         ✏️ Edit Profile
       </button>
+
+<br />
+
+      {/* ✅ Upload Gallery Button */}
+<button
+  style={{
+    marginTop: "10px",
+    backgroundColor: "#6f42c1",
+    color: "white",
+    padding: "8px 12px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  }}
+  onClick={() => navigate("/upload-gallery")}
+>
+  📸 Upload Gallery
+</button>
+
     </div>
   );
 };

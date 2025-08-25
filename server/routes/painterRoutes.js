@@ -4,8 +4,9 @@ import {
   painterLogin,
   getPainterProfile,
   updatePainterProfile,
-  getPainterGallery,
   getPainterBookings,
+  addGalleryImage, 
+  deleteGalleryImage
 } from "../controllers/painterController.js";
 
 import { painterProtect } from "../middleware/auth.js";
@@ -32,11 +33,13 @@ router.put(
 
 // Gallery
 router.post(
-  "/gallery/:id",
+  "/gallery",
   painterProtect,
-  uploadGalleryImage.single("galleryImage")
+  uploadGalleryImage.single("image"),
+  addGalleryImage
 );
-router.get("/gallery/:id", painterProtect, getPainterGallery);
+
+router.delete("/gallery/:imageId", painterProtect, deleteGalleryImage);
 
 // Bookings
 router.get("/bookings/:id", painterProtect, getPainterBookings);

@@ -18,7 +18,7 @@ const Login = () => {
 
       toast.success('Login successful!'); // ✅ Toast for success
 
-      navigate('/painter/dashboard');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error.response?.data || error.message);
       toast.error('Login failed: ' + (error.response?.data?.message || error.message)); // ✅ Toast for error

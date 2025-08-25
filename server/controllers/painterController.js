@@ -152,3 +152,52 @@ export const getPainterBookings = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+// Add image to gallery
+export const addGalleryImage = async (req, res) => {
+  try {
+    const painterId = req.user.id; 
+    const { description } = req.body;
+
+    const painter = await Painter.findById(painterId);
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    const newImage = {
+      image: `/uploads/galleryImages/${req.file.filename}`, // ✅ full path
+      description,
+    };
+
+    painter.gallery.push(newImage);
+    await painter.save();
+
+    res.status(200).json({
+      message: "Image uploaded successfully",
+      gallery: painter.gallery,
+    });
+  } catch (error) {
+    console.error("Gallery upload error:", error);
+    res.status(500).json({ message: "Server error while uploading gallery" });
+  }
+};
+
+
+// 🔹 Delete gallery image
+export const deleteGalleryImage = async (req, res) => {
+  try {
+    const painterId = req.user.id;
+    const { imageId } = req.params;
+
+    const painter = await Painter.findById(painterId);
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    painter.gallery = painter.gallery.filter(
+      (img) => img._id.toString() !== imageId
+    );
+
+    await painter.save();
+    res.json(painter.gallery);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

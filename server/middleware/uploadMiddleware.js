@@ -21,7 +21,7 @@ const galleryStorage = multer.diskStorage({
     cb(null, path.join(__dirname, "../uploads/galleryImages"));
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
@@ -38,5 +38,6 @@ const userProfileStorage = multer.diskStorage({
 
 // ✅ Create multer instances
 export const uploadProfileImage = multer({ storage: profileStorage });
-export const uploadGalleryImage = multer({ storage: galleryStorage });
+
 export const uploadUserProfileImage = multer({ storage: userProfileStorage });
+export const uploadGalleryImage = multer({ storage: galleryStorage });
