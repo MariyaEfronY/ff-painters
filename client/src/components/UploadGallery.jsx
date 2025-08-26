@@ -52,7 +52,7 @@ const UploadGallery = () => {
 
       if (res.status === 200) {
         alert("✅ Gallery image uploaded successfully!");
-        navigate("/dashboard"); // redirect back to dashboard
+        navigate("/gallery"); 
       }
     } catch (error) {
       console.error("❌ Upload error:", error.response?.data || error.message);

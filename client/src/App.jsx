@@ -8,6 +8,7 @@ import Login from "./pages/painter/Login";
 import PainterDashboard from "./components/PainterDashboard";
 import EditProfilePage from "./pages/EditProfilePage";
 import UploadGallery from "./components/UploadGallery";  
+import GalleryPage from "./components/GalleryPage";
 
 /* ---------- User Pages ---------- */
 import UserSignup from "./pages/user/UserSignup";
@@ -27,6 +28,7 @@ function App() {
         <Route path="/dashboard" element={<PainterDashboard />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/upload-gallery" element={<UploadGallery />} />
+        <Route path="/gallery" element={<GalleryPage />} /> 
 
 
         {/* ---------- User Routes ---------- */}

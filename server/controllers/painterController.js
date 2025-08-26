@@ -157,14 +157,14 @@ export const getPainterBookings = async (req, res) => {
 // Add image to gallery
 export const addGalleryImage = async (req, res) => {
   try {
-    const painterId = req.user.id; 
+    const painterId = req.painter._id; // ✅ FIXED: use req.painter from middleware
     const { description } = req.body;
 
     const painter = await Painter.findById(painterId);
     if (!painter) return res.status(404).json({ message: "Painter not found" });
 
     const newImage = {
-      image: `/uploads/galleryImages/${req.file.filename}`, // ✅ full path
+      image: `/uploads/galleryImages/${req.file.filename}`, // ✅ saved path
       description,
     };
 
@@ -182,22 +182,82 @@ export const addGalleryImage = async (req, res) => {
 };
 
 
-// 🔹 Delete gallery image
-export const deleteGalleryImage = async (req, res) => {
+// ✅ Fetch Painter's Gallery
+export const getGallery = async (req, res) => {
   try {
-    const painterId = req.user.id;
-    const { imageId } = req.params;
+    const painter = await Painter.findById(req.painter._id).select("gallery");
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
+    }
 
-    const painter = await Painter.findById(painterId);
-    if (!painter) return res.status(404).json({ message: "Painter not found" });
-
-    painter.gallery = painter.gallery.filter(
-      (img) => img._id.toString() !== imageId
-    );
-
-    await painter.save();
-    res.json(painter.gallery);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(200).json({ gallery: painter.gallery });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch gallery", error: err.message });
   }
 };
+
+
+// ✅ Edit gallery image description
+export const updateGallery = async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    const { description } = req.body;
+
+    const painter = await Painter.findById(req.painter._id);
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    const image = painter.gallery.id(imageId);
+    if (!image) return res.status(404).json({ message: "Image not found" });
+
+    // Update description
+    image.description = description || image.description;
+    await painter.save();
+
+    res.status(200).json({ message: "Gallery updated", gallery: painter.gallery });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update gallery", error: err.message });
+  }
+};
+
+export const deleteGallery = async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    console.log("🟡 Delete request received for imageId:", imageId);
+
+    const painter = await Painter.findById(req.painter._id);
+    if (!painter) {
+      console.log("🔴 Painter not found");
+      return res.status(404).json({ message: "Painter not found" });
+    }
+
+    const image = painter.gallery.id(imageId);
+    if (!image) {
+      console.log("🔴 Image not found in gallery");
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    console.log("🟢 Image found:", image);
+
+    // File path check
+    const imagePath = path.join(process.cwd(), "uploads/gallery", image.image);
+    console.log("🟢 Trying to delete file:", imagePath);
+
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+      console.log("🟢 File deleted from server");
+    } else {
+      console.log("⚠️ File not found on server, skipping fs.unlinkSync");
+    }
+
+    // Remove from DB
+    image.deleteOne();
+    await painter.save();
+
+    res.status(200).json({ message: "Image deleted", gallery: painter.gallery });
+  } catch (err) {
+    console.error("❌ Delete error:", err);
+    res.status(500).json({ message: "Failed to delete image", error: err.message });
+  }
+};
+
+

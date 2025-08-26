@@ -127,7 +127,7 @@ const PainterDashboard = () => {
 
 <br />
 
-      {/* ✅ Upload Gallery Button */}
+{/* ✅ Upload Gallery Button */}
 <button
   style={{
     marginTop: "10px",
@@ -138,11 +138,12 @@ const PainterDashboard = () => {
     borderRadius: "5px",
     cursor: "pointer",
   }}
-  onClick={() => navigate("/upload-gallery")}
+  onClick={() => navigate("/gallery")}
 >
-  📸 Upload Gallery
+  📸 Gallery
 </button>
 
+      
     </div>
   );
 };
