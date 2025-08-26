@@ -4,7 +4,6 @@ import {
   painterLogin,
   getPainterProfile,
   updatePainterProfile,
-  getPainterBookings,
   addGalleryImage,
   getGallery, 
   updateGallery,
@@ -42,11 +41,9 @@ router.post(
 );
 router.get("/gallery", painterProtect, getGallery);
 router.put("/gallery/:imageId", painterProtect, updateGallery);
-router.delete("/gallery/:imageId", deleteGallery);
+router.delete("/gallery/:imageId", painterProtect, deleteGallery);
 
 
 
-// Bookings
-router.get("/bookings/:id", painterProtect, getPainterBookings);
 
 export default router;

@@ -25,18 +25,21 @@ const GalleryPage = () => {
     fetchGallery();
   }, []);
 
-  // ✅ Handle delete
-  const handleDelete = async (imageId) => {
-  try {
-    console.log("🟡 Deleting image:", imageId);
-    await axios.delete(`http://localhost:5000/api/painter/gallery/${imageId}`, {
-      withCredentials: true, // if using cookies for auth
-    });
-    setGallery(gallery.filter(img => img._id !== imageId));
-  } catch (err) {
-    console.error("❌ Delete error:", err);
-  }
-};
+  // Handle Delete
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this image?")) return;
+
+    try {
+      const token = localStorage.getItem("painterToken");
+      await axios.delete(`http://localhost:5000/api/painter/gallery/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchGallery();
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete ❌");
+    }
+  };
 
   // Handle Edit
   const handleEdit = (id, currentDesc) => {
@@ -135,21 +138,12 @@ const GalleryPage = () => {
                   >
                     Edit
                   </button>
-                 {/* ✅ Delete Button with imageId */}
-              <button
-                onClick={() => handleDelete(item._id)}
-                style={{
-                  marginTop: "8px",
-                  backgroundColor: "red",
-                  color: "white",
-                  padding: "5px 10px",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
-                🗑 Delete
-              </button>
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    style={{ background: "red", color: "white", padding: "5px" }}
+                  >
+                    Delete
+                  </button>
                 </>
               )}
             </div>

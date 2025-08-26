@@ -128,30 +128,6 @@ export const updatePainterProfile = async (req, res) => {
   }
 };
 
-/* ---------- GALLERY ---------- */
-export const getPainterGallery = async (req, res) => {
-  try {
-    const painterId = req.params.id;
-    const painter = await Painter.findById(painterId);
-    if (!painter) return res.status(404).json({ error: 'Painter not found' });
-    res.status(200).json(painter.gallery);
-  } catch (error) {
-    console.error('Error getting gallery:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-/* ---------- BOOKINGS ---------- */
-export const getPainterBookings = async (req, res) => {
-  try {
-    const painterId = req.params.id;
-    const bookings = await Booking.find({ painterId });
-    res.status(200).json(bookings);
-  } catch (error) {
-    console.error('Error getting painter bookings:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
 
 
 // Add image to gallery
@@ -219,45 +195,34 @@ export const updateGallery = async (req, res) => {
   }
 };
 
+// ✅ Delete gallery image
 export const deleteGallery = async (req, res) => {
   try {
     const { imageId } = req.params;
-    console.log("🟡 Delete request received for imageId:", imageId);
 
     const painter = await Painter.findById(req.painter._id);
-    if (!painter) {
-      console.log("🔴 Painter not found");
-      return res.status(404).json({ message: "Painter not found" });
-    }
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
 
     const image = painter.gallery.id(imageId);
-    if (!image) {
-      console.log("🔴 Image not found in gallery");
-      return res.status(404).json({ message: "Image not found" });
+    if (!image) return res.status(404).json({ message: "Image not found" });
+
+    // Remove file from disk (if exists)
+    const filePath = `uploads/gallery/${image.image}`;
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
 
-    console.log("🟢 Image found:", image);
-
-    // File path check
-    const imagePath = path.join(process.cwd(), "uploads/gallery", image.image);
-    console.log("🟢 Trying to delete file:", imagePath);
-
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-      console.log("🟢 File deleted from server");
-    } else {
-      console.log("⚠️ File not found on server, skipping fs.unlinkSync");
-    }
-
-    // Remove from DB
-    image.deleteOne();
+    // Remove from gallery
+    image.remove();
     await painter.save();
 
-    res.status(200).json({ message: "Image deleted", gallery: painter.gallery });
+    res.status(200).json({
+      message: "Image deleted successfully",
+      gallery: painter.gallery,
+    });
   } catch (err) {
-    console.error("❌ Delete error:", err);
+    console.error("❌ Delete gallery error:", err);
     res.status(500).json({ message: "Failed to delete image", error: err.message });
   }
 };
-
 
