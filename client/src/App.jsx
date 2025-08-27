@@ -2,6 +2,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+/* ---------- Main  Pages ---------- */
+import PaintersList from "./pages/PaintersList";
+import PainterDetail from "./pages/PainterDetail";
+
 /* ---------- Painter Pages ---------- */
 import Signup from "./pages/painter/Signup";
 import Login from "./pages/painter/Login";
@@ -22,6 +26,13 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
+
+         {/* ---------- Main Page ---------- */}
+         <Route path="/" element={<PaintersList />} /> 
+        <Route path="/painters/:id" element={<PainterDetail />} />
+
+
+
         {/* ---------- Painter Routes ---------- */}
         <Route path="/painter/signup" element={<Signup />} />
         <Route path="/painter/login" element={<Login />} />

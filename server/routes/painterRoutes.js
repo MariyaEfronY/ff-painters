@@ -7,7 +7,12 @@ import {
   addGalleryImage,
   getGallery, 
   updateGallery,
-  deleteGalleryImage
+  deleteGalleryImage,
+  getAllPainters,
+  getPainterById,
+  getPainterGallery,
+  createBooking,
+  getPainterBookings,
 } from "../controllers/painterController.js";
 
 import { painterProtect } from "../middleware/auth.js";
@@ -47,6 +52,16 @@ router.delete(
   deleteGalleryImage
 );
 
+
+// 🔹 Public
+router.get("/main", getAllPainters);  
+router.get("/:id", getPainterById);
+router.get("/:id/gallery", getPainterGallery);
+router.post("/:id/book", createBooking);
+
+
+// 🔹 Painter Bookings (protected)
+router.get("/bookings/me", painterProtect, getPainterBookings);
 
 
 

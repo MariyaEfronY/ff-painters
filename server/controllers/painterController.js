@@ -242,3 +242,88 @@ export const deleteGalleryImage = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
+
+/* ---------- Bookings ---------- */
+
+// ✅ Public: fetch painters for main page
+
+export const getAllPainters = async (req, res) => {
+  try {
+    // fetch painters
+    const painters = await Painter.find();
+
+    // attach one preview gallery image for each painter
+    const paintersWithGallery = await Promise.all(
+      painters.map(async (painter) => {
+        const gallery = await Gallery.findOne({ painterId: painter._id });
+        return {
+          ...painter.toObject(),
+          previewImage: gallery ? gallery.imageUrl : null,
+          previewDesc: gallery ? gallery.description : "",
+        };
+      })
+    );
+
+    res.json(paintersWithGallery);
+  } catch (err) {
+    res.status(500).json({ message: "Server error: " + err.message });
+  }
+};
+// ✅ Public: fetch one painter’s full profile
+export const getPainterById = async (req, res) => {
+  try {
+    const painter = await Painter.findById(req.params.id).select("-password");
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    res.json(painter);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching painter", error: err.message });
+  }
+};
+
+// ✅ Public: fetch painter’s gallery
+export const getPainterGallery = async (req, res) => {
+  try {
+    const painter = await Painter.findById(req.params.id).select("gallery");
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    res.json(painter.gallery);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching gallery", error: err.message });
+  }
+};
+
+// ✅ Public: create a booking (user → painter)
+export const createBooking = async (req, res) => {
+  try {
+    const { userName, userEmail, date, message } = req.body;
+    const painterId = req.params.id;
+
+    const painter = await Painter.findById(painterId);
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    const booking = await Booking.create({
+      userName,
+      userEmail,
+      date,
+      message,
+      painter: painterId,
+    });
+
+    res.status(201).json({ message: "Booking created", booking });
+  } catch (err) {
+    res.status(500).json({ message: "Error creating booking", error: err.message });
+  }
+};
+
+// ✅ Painter: view their bookings (protected)
+export const getPainterBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ painter: req.painter._id });
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching bookings", error: err.message });
+  }
+};
