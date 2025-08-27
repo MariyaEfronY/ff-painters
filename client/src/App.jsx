@@ -3,8 +3,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 /* ---------- Main Pages ---------- */
-import PaintersList from "./pages/PaintersList";
+// import PaintersList from "./pages/PaintersList";
+import LandingPage from "./pages/LandingPage";
 import PainterDetail from "./pages/PainterDetail";
+
 
 /* ---------- Painter Pages ---------- */
 import Signup from "./pages/painter/Signup";
@@ -31,7 +33,8 @@ function App() {
       <Routes>
 
         {/* ---------- Main Page ---------- */}
-        <Route path="/" element={<PaintersList />} /> 
+        {/* <Route path="/" element={<PaintersList />} />  */}
+        <Route path="/" element={<LandingPage />} /> 
         <Route path="/painters/:id" element={<PainterDetail />} />
 
         {/* ---------- Painter Routes ---------- */}
