@@ -6,12 +6,12 @@ const PainterDetails = () => {
   const { id } = useParams();
   const [painter, setPainter] = useState(null);
   const navigate = useNavigate();
-
+ 
  useEffect(() => {
   const fetchPainter = async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
-      setPainter(res.data); // this includes gallery
+setPainter(res.data); // this includes gallery
     } catch (err) {
       console.error("❌ Failed to load painter:", err.message);
     }
@@ -39,17 +39,28 @@ const PainterDetails = () => {
       {/* Gallery Section */}
 <h2 className="text-xl font-semibold mt-6">Projects</h2>
 <div className="grid grid-cols-2 gap-3 mt-3">
-  {painter.gallery?.map((img, index) => (
-    <div key={index} className="bg-white shadow rounded p-2">
-      <img
-        src={`http://localhost:5000/uploads/galleryImages/${img.image}`}
-        alt={img.description || "Project image"}
-        className="w-full h-40 object-cover rounded"
-      />
-      <p className="text-sm text-gray-600 mt-1">{img.description}</p>
-    </div>
-  ))}
+  {painter.gallery?.length > 0 ? (
+    painter.gallery.map((img, index) => (
+      <div key={index} className="bg-white shadow rounded p-2">
+        <img
+  src={`http://localhost:5000${img.image}`}
+  alt={img.description || "Project image"}
+  style={{ width: "30%",hight: "25%", borderRadius: "5px" }}
+/>
+
+
+
+
+        <p className="text-sm text-gray-600 mt-1">{img.description}</p>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500">No projects uploaded yet.</p>
+  )}
 </div>
+
+
+
 
 
 

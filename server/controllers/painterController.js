@@ -274,14 +274,12 @@ export const getAllPainters = async (req, res) => {
 // Get full painter details (profile + gallery)
 export const getPainterById = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.params.id).select(
-      "name city bio profileImage gallery"
-    );
+    const painter = await Painter.findById(req.params.id).select("-password");
     if (!painter) return res.status(404).json({ message: "Painter not found" });
 
-    res.json(painter);
+    res.json(painter); // includes gallery array
   } catch (err) {
-    res.status(500).json({ message: "Error fetching painter", error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
