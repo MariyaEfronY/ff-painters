@@ -29,9 +29,9 @@ const PaintersList = () => {
             style={{ width: "160px", height: "160px", maxWidth: "200px", maxHeight: "200px" }}
           />
 
-          <h2 className="text-xl font-bold mt-2">{p.name}</h2>
-          <p className="text-gray-600">{p.city}</p>
-          <p className="text-sm mt-2 line-clamp-2">{p.bio}</p>
+          <h2 className="text-xl font-bold mt-2">Name: {p.name}</h2>
+          <p className="text-gray-600">City: {p.city}</p>
+          <p className="text-sm mt-2 line-clamp-2">Bio: {p.bio}</p>
 
           {/* 👉 Button to view projects */}
           <button

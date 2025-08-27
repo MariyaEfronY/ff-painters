@@ -60,12 +60,6 @@ setPainter(res.data); // this includes gallery
 </div>
 
 
-
-
-
-
-
-
       {/* Booking Button */}
       <button
         onClick={() => navigate(`/book/${painter._id}`)}
