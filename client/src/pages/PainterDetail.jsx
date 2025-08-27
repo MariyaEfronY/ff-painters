@@ -7,17 +7,18 @@ const PainterDetails = () => {
   const [painter, setPainter] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchPainter = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
-        setPainter(res.data);
-      } catch (err) {
-        console.error("❌ Failed to load painter:", err.message);
-      }
-    };
-    fetchPainter();
-  }, [id]);
+ useEffect(() => {
+  const fetchPainter = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
+      setPainter(res.data); // this includes gallery
+    } catch (err) {
+      console.error("❌ Failed to load painter:", err.message);
+    }
+  };
+  fetchPainter();
+}, [id]);
+
 
   if (!painter) return <p className="text-center mt-10">Loading...</p>;
 
@@ -30,23 +31,29 @@ const PainterDetails = () => {
           className="rounded-full mx-auto border-4 border-gray-200 shadow-md object-cover"
           style={{ width: "180px", height: "180px" }}
         />
-        <h1 className="text-2xl font-bold mt-4">{painter.name}</h1>
-        <p className="text-gray-600">{painter.city}</p>
-        <p className="mt-2">{painter.bio}</p>
+        <h1 className="text-2xl font-bold mt-4">Name: {painter.name}</h1>
+        <p className="text-gray-600">City: {painter.city}</p>
+        <p className="mt-2">Bio: {painter.bio}</p>
       </div>
 
       {/* Gallery Section */}
-      <h2 className="text-xl font-semibold mt-6">Projects</h2>
-    <div className="grid grid-cols-2 gap-3 mt-3">
-  {painter.gallery?.map((img) => (
-    <img
-      key={img._id}
-      src={`http://localhost:5000/uploads/galleryImages/${img.image}`} // 👈 make sure path is correct
-      alt={img.description}
-      className="w-full h-40 object-cover rounded"
-    />
+<h2 className="text-xl font-semibold mt-6">Projects</h2>
+<div className="grid grid-cols-2 gap-3 mt-3">
+  {painter.gallery?.map((img, index) => (
+    <div key={index} className="bg-white shadow rounded p-2">
+      <img
+        src={`http://localhost:5000/uploads/galleryImages/${img.image}`}
+        alt={img.description || "Project image"}
+        className="w-full h-40 object-cover rounded"
+      />
+      <p className="text-sm text-gray-600 mt-1">{img.description}</p>
+    </div>
   ))}
 </div>
+
+
+
+
 
       {/* Booking Button */}
       <button

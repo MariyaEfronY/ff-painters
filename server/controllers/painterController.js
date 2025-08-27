@@ -271,10 +271,12 @@ export const getAllPainters = async (req, res) => {
   }
 };
 
-// ✅ Public: fetch one painter’s full profile
+// Get full painter details (profile + gallery)
 export const getPainterById = async (req, res) => {
   try {
-    const painter = await Painter.findById(req.params.id).select("-password");
+    const painter = await Painter.findById(req.params.id).select(
+      "name city bio profileImage gallery"
+    );
     if (!painter) return res.status(404).json({ message: "Painter not found" });
 
     res.json(painter);
@@ -283,17 +285,24 @@ export const getPainterById = async (req, res) => {
   }
 };
 
-// ✅ Public: fetch painter’s gallery
+// Get only gallery
 export const getPainterGallery = async (req, res) => {
   try {
     const painter = await Painter.findById(req.params.id).select("gallery");
-    if (!painter) return res.status(404).json({ message: "Painter not found" });
 
-    res.json(painter.gallery);
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
+    }
+
+    res.status(200).json(painter.gallery);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching gallery", error: err.message });
+    res.status(500).json({
+      message: "Error fetching gallery",
+      error: err.message,
+    });
   }
 };
+
 
 // ✅ Public: create a booking (user → painter)
 export const createBooking = async (req, res) => {

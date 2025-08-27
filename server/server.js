@@ -49,6 +49,7 @@ app.use(
   "/uploads/userProfileImages",
   express.static(path.join(__dirname, "uploads/userProfileImages"))
 );
+app.use("/uploads/galleryImages", express.static(path.join(process.cwd(), "uploads/galleryImages")));
 
 // API routes
 app.use("/api/painter", painterRoutes);
