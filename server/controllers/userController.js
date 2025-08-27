@@ -115,3 +115,18 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ message: "Update failed", error: err.message });
   }
 };
+
+
+export const getUserBookings = async (req, res) => {
+  try {
+    // req.user is set by userProtect middleware
+    const userEmail = req.user.email;
+
+    const bookings = await Booking.find({ userEmail })
+      .populate("painter", "name city profileImage"); // populate painter info
+
+    res.status(200).json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching user bookings", error: err.message });
+  }
+};

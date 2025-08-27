@@ -305,32 +305,61 @@ export const getPainterGallery = async (req, res) => {
 // ✅ Public: create a booking (user → painter)
 export const createBooking = async (req, res) => {
   try {
-    const { userName, userEmail, date, message } = req.body;
     const painterId = req.params.id;
-
-    const painter = await Painter.findById(painterId);
-    if (!painter) return res.status(404).json({ message: "Painter not found" });
+    const { userId, userName, userEmail, date, message } = req.body;
 
     const booking = await Booking.create({
+      painter: painterId,
+      user: userId,
       userName,
       userEmail,
       date,
       message,
-      painter: painterId,
+      status: "pending",
     });
 
-    res.status(201).json({ message: "Booking created", booking });
+    res.status(201).json(booking);
   } catch (err) {
-    res.status(500).json({ message: "Error creating booking", error: err.message });
+    res.status(500).json({ message: "Failed to create booking", error: err.message });
   }
 };
 
+
 // ✅ Painter: view their bookings (protected)
-export const getPainterBookings = async (req, res) => {
+export const getUserBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ painter: req.painter._id });
-    res.json(bookings);
+    const userEmail = req.user.email; // assuming req.user set by userProtect middleware
+
+    const bookings = await Booking.find({ userEmail }).populate("painter", "name city profileImage");
+    
+    res.status(200).json(bookings);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching bookings", error: err.message });
+    res.status(500).json({ message: "Error fetching user bookings", error: err.message });
+  }
+};
+
+
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body; // "accepted" or "rejected"
+
+    // 1️⃣ Find the booking
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    // 2️⃣ Check authorization: only the painter of this booking can update
+    if (booking.painter.toString() !== req.painter._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    // 3️⃣ Update status
+    booking.status = status;
+    await booking.save();
+
+    // 4️⃣ Return updated booking
+    res.json({ message: "Booking updated", booking });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating booking", error: err.message });
   }
 };

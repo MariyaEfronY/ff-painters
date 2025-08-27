@@ -104,6 +104,22 @@ const UserDashboard = () => {
           {isRefreshing ? "Refreshing..." : "Refresh"}
         </button>
       </div>
+      <button
+  type="button"
+  onClick={() => navigate("/user/bookings")}
+  style={{
+    marginTop: "20px",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    background: "#28a745",
+    color: "white",
+    fontWeight: "bold",
+    border: "none",
+    cursor: "pointer",
+  }}
+>
+  View My Bookings
+</button>
 
       {!edit ? (
         <>
@@ -139,6 +155,7 @@ const UserDashboard = () => {
         </form>
       )}
     </div>
+    
   );
 };
 

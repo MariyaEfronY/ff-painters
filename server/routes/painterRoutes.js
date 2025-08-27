@@ -12,10 +12,12 @@ import {
   getPainterById,
   getPainterGallery,
   createBooking,
-  getPainterBookings,
+  getUserBookings,
+  updateBookingStatus
 } from "../controllers/painterController.js";
 
 import { painterProtect } from "../middleware/auth.js";
+import { userProtect } from "../middleware/auth.js";
 import {
   uploadProfileImage,
   uploadGalleryImage,
@@ -61,7 +63,9 @@ router.post("/:id/book", createBooking);
 
 
 // 🔹 Painter Bookings (protected)
-router.get("/bookings/me", painterProtect, getPainterBookings);
+router.post("/:id/book", userProtect, createBooking);
+router.get("/bookings/me", userProtect, getUserBookings);
+router.put("/bookings/:bookingId/status", painterProtect, updateBookingStatus);
 
 
 

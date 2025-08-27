@@ -125,25 +125,41 @@ const PainterDashboard = () => {
         ✏️ Edit Profile
       </button>
 
-<br />
+      <br />
 
-{/* ✅ Upload Gallery Button */}
-<button
-  style={{
-    marginTop: "10px",
-    backgroundColor: "#6f42c1",
-    color: "white",
-    padding: "8px 12px",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  }}
-  onClick={() => navigate("/gallery")}
->
-  📸 Gallery
-</button>
+      {/* ✅ Upload Gallery Button */}
+      <button
+        style={{
+          marginTop: "10px",
+          backgroundColor: "#6f42c1",
+          color: "white",
+          padding: "8px 12px",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/gallery")}
+      >
+        📸 Gallery
+      </button>
 
-      
+      <br />
+
+      {/* ✅ View Orders / Bookings Button */}
+      <button
+        style={{
+          marginTop: "10px",
+          backgroundColor: "#fd7e14",
+          color: "white",
+          padding: "8px 12px",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/painter/bookings")}
+      >
+        📋 View Bookings
+      </button>
     </div>
   );
 };
