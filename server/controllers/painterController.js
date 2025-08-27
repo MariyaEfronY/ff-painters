@@ -2,6 +2,15 @@ import Painter from '../models/Painter.js';
 import Booking from '../models/Booking.js';
 import bcrypt from 'bcryptjs';
 import createToken from '../utils/createToken.js';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+
+
+// ✅ Define __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /* ---------- SIGNUP ---------- */
 export const painterSignup = async (req, res) => {
@@ -195,34 +204,41 @@ export const updateGallery = async (req, res) => {
   }
 };
 
-// ✅ Delete gallery image
-export const deleteGallery = async (req, res) => {
+// ✅ Delete gallery image (correct)
+// ✅ Delete gallery image (fixed)
+export const deleteGalleryImage = async (req, res) => {
   try {
-    const { imageId } = req.params;
+    const { id } = req.params; // ✅ match router param
 
     const painter = await Painter.findById(req.painter._id);
-    if (!painter) return res.status(404).json({ message: "Painter not found" });
-
-    const image = painter.gallery.id(imageId);
-    if (!image) return res.status(404).json({ message: "Image not found" });
-
-    // Remove file from disk (if exists)
-    const filePath = `uploads/gallery/${image.image}`;
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
     }
 
-    // Remove from gallery
-    image.remove();
+    const imageDoc = painter.gallery.id(id);
+    if (!imageDoc) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    // remove file from disk if exists
+    if (imageDoc.image) {
+      const relativePath = imageDoc.image.replace(/^\//, "");
+      const absolutePath = path.join(__dirname, "..", relativePath);
+
+      if (fs.existsSync(absolutePath)) {
+        fs.unlinkSync(absolutePath);
+      }
+    }
+
+    imageDoc.deleteOne();
     await painter.save();
 
-    res.status(200).json({
+    res.json({
       message: "Image deleted successfully",
       gallery: painter.gallery,
     });
   } catch (err) {
-    console.error("❌ Delete gallery error:", err);
-    res.status(500).json({ message: "Failed to delete image", error: err.message });
+    console.error("❌ Delete error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-

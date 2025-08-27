@@ -27,19 +27,23 @@ const GalleryPage = () => {
 
   // Handle Delete
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this image?")) return;
+  try {
+    const token = localStorage.getItem("painterToken");
 
-    try {
-      const token = localStorage.getItem("painterToken");
-      await axios.delete(`http://localhost:5000/api/painter/gallery/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchGallery();
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert("Failed to delete ❌");
-    }
-  };
+    await axios.delete(`http://localhost:5000/api/painter/gallery/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    alert("Image deleted successfully!");
+    setGallery(gallery.filter((img) => img._id !== id));
+  } catch (err) {
+    console.error("❌ Delete error:", err.response?.data || err.message);
+  }
+};
+
+
 
   // Handle Edit
   const handleEdit = (id, currentDesc) => {

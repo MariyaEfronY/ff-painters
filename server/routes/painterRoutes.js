@@ -7,7 +7,7 @@ import {
   addGalleryImage,
   getGallery, 
   updateGallery,
-  deleteGallery
+  deleteGalleryImage
 } from "../controllers/painterController.js";
 
 import { painterProtect } from "../middleware/auth.js";
@@ -41,7 +41,11 @@ router.post(
 );
 router.get("/gallery", painterProtect, getGallery);
 router.put("/gallery/:imageId", painterProtect, updateGallery);
-router.delete("/gallery/:imageId", painterProtect, deleteGallery);
+router.delete(
+  "/gallery/:id",
+  painterProtect, // ✅ protect route
+  deleteGalleryImage
+);
 
 
 
