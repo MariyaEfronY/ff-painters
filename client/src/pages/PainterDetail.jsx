@@ -2,88 +2,61 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const PainterDetail = () => {
+const PainterDetails = () => {
   const { id } = useParams();
   const [painter, setPainter] = useState(null);
-  const [gallery, setGallery] = useState([]);
-  const [date, setDate] = useState("");
-  const [projectDetails, setProjectDetails] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/painters/${id}`)
-      .then((res) => setPainter(res.data));
-
-    axios.get(`http://localhost:5000/api/painters/${id}/gallery`)
-      .then((res) => setGallery(res.data));
+    const fetchPainter = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
+        setPainter(res.data);
+      } catch (err) {
+        console.error("❌ Failed to load painter:", err.message);
+      }
+    };
+    fetchPainter();
   }, [id]);
 
-  const handleBooking = async () => {
-    const token = localStorage.getItem("userToken");
-    if (!token) {
-      navigate("/user/login");
-      return;
-    }
-
-    try {
-      await axios.post(
-        "http://localhost:5000/api/bookings",
-        { painterId: id, date, projectDetails },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("Booking request sent!");
-    } catch (err) {
-      alert("Booking failed: " + err.response.data.message);
-    }
-  };
-
-  if (!painter) return <p>Loading...</p>;
+  if (!painter) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold">{painter.name}</h1>
-      <p>{painter.city} | {painter.specification.join(", ")}</p>
-      <p className="mt-2">{painter.bio}</p>
-
-      {/* Gallery */}
-      <h2 className="text-2xl mt-6">Project Gallery</h2>
-      <div className="grid grid-cols-3 gap-4 mt-4">
-        {gallery.map((img) => (
-          <div key={img._id}>
-            <img
-              src={img.image}
-              alt={img.description}
-              className="w-full h-40 object-cover rounded"
-            />
-            <p className="text-sm mt-1">{img.description}</p>
-          </div>
-        ))}
+    <div className="p-6 max-w-3xl mx-auto">
+      <div className="text-center">
+        <img
+          src={`http://localhost:5000/uploads/profileImages/${painter.profileImage}`}
+          alt={painter.name}
+          className="rounded-full mx-auto border-4 border-gray-200 shadow-md object-cover"
+          style={{ width: "180px", height: "180px" }}
+        />
+        <h1 className="text-2xl font-bold mt-4">{painter.name}</h1>
+        <p className="text-gray-600">{painter.city}</p>
+        <p className="mt-2">{painter.bio}</p>
       </div>
 
-      {/* Booking */}
-      <div className="mt-6 border p-4 rounded-lg">
-        <h2 className="text-xl font-semibold mb-2">Book This Painter</h2>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <textarea
-          placeholder="Project details..."
-          value={projectDetails}
-          onChange={(e) => setProjectDetails(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <button
-          onClick={handleBooking}
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Confirm Booking
-        </button>
-      </div>
+      {/* Gallery Section */}
+      <h2 className="text-xl font-semibold mt-6">Projects</h2>
+    <div className="grid grid-cols-2 gap-3 mt-3">
+  {painter.gallery?.map((img) => (
+    <img
+      key={img._id}
+      src={`http://localhost:5000/uploads/galleryImages/${img.image}`} // 👈 make sure path is correct
+      alt={img.description}
+      className="w-full h-40 object-cover rounded"
+    />
+  ))}
+</div>
+
+      {/* Booking Button */}
+      <button
+        onClick={() => navigate(`/book/${painter._id}`)}
+        className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full"
+      >
+        Book Painter
+      </button>
     </div>
   );
 };
 
-export default PainterDetail;
+export default PainterDetails;

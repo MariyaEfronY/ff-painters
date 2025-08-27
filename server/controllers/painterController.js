@@ -249,28 +249,28 @@ export const deleteGalleryImage = async (req, res) => {
 
 // ✅ Public: fetch painters for main page
 
+// controllers/painterController.js
 export const getAllPainters = async (req, res) => {
   try {
-    // fetch painters
-    const painters = await Painter.find();
+    const painters = await Painter.find().select("-password");
 
-    // attach one preview gallery image for each painter
-    const paintersWithGallery = await Promise.all(
-      painters.map(async (painter) => {
-        const gallery = await Gallery.findOne({ painterId: painter._id });
-        return {
-          ...painter.toObject(),
-          previewImage: gallery ? gallery.imageUrl : null,
-          previewDesc: gallery ? gallery.description : "",
-        };
-      })
-    );
+    // Build gallery previews
+    const result = painters.map((p) => ({
+      _id: p._id,
+      name: p.name,
+      bio: p.bio,
+      city: p.city,
+      profileImage: p.profileImage,
+      galleryPreview: p.gallery.slice(0, 2), // show first 2 images
+    }));
 
-    res.json(paintersWithGallery);
+    res.json(result);
   } catch (err) {
+    console.error("getAllPainters error:", err);
     res.status(500).json({ message: "Server error: " + err.message });
   }
 };
+
 // ✅ Public: fetch one painter’s full profile
 export const getPainterById = async (req, res) => {
   try {

@@ -7,47 +7,38 @@ const PaintersList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const fetchPainters = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/painters/main");
-      setPainters(res.data);
-    } catch (err) {
-      console.error("❌ Failed to load painters:", err.message);
-    }
-  };
-  fetchPainters();
-}, []);
+    const fetchPainters = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/painter/main");
+        setPainters(res.data);
+      } catch (err) {
+        console.error("❌ Failed to load painters:", err.message);
+      }
+    };
+    fetchPainters();
+  }, []);
 
   return (
     <div className="p-6 grid grid-cols-3 gap-6">
       {painters.map((p) => (
-        <div key={p._id} className="shadow-lg rounded-xl p-4 bg-white">
+        <div key={p._id} className="shadow-lg rounded-xl p-4 bg-white text-center">
           <img
-            src={`/uploads/profileImages/${p.profileImage}`}
+            src={`http://localhost:5000/uploads/profileImages/${p.profileImage}`}
             alt={p.name}
-            className="w-32 h-32 rounded-full mx-auto object-cover"
+            className="rounded-full object-cover mx-auto border-4 border-gray-200 shadow-md"
+            style={{ width: "160px", height: "160px", maxWidth: "200px", maxHeight: "200px" }}
           />
+
           <h2 className="text-xl font-bold mt-2">{p.name}</h2>
           <p className="text-gray-600">{p.city}</p>
-          <p className="text-sm mt-2">{p.bio}</p>
+          <p className="text-sm mt-2 line-clamp-2">{p.bio}</p>
 
-          {/* Gallery preview */}
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {p.galleryPreview?.map((img) => (
-              <img
-                key={img._id}
-                src={img.image}
-                alt={img.description}
-                className="w-full h-24 object-cover rounded"
-              />
-            ))}
-          </div>
-
+          {/* 👉 Button to view projects */}
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-4 w-full"
             onClick={() => navigate(`/painters/${p._id}`)}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            View Profile & Book
+            View Projects
           </button>
         </div>
       ))}
