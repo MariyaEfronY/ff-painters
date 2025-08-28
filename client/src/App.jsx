@@ -3,8 +3,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 /* ---------- Main Pages ---------- */
-// import PaintersList from "./pages/PaintersList";
-import LandingPage from "./pages/LandingPage";
+import PaintersList from "./pages/PaintersList";
+// import LandingPage from "./pages/LandingPage";
 import PainterDetail from "./pages/PainterDetail";
 
 
@@ -32,9 +32,9 @@ function App() {
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
 
-        {/* ---------- Main Page ---------- */}
-        {/* <Route path="/" element={<PaintersList />} />  */}
-        <Route path="/" element={<LandingPage />} /> 
+        {/* ---------- Main Page ----------  <Route path="/" element={<LandingPage />} /> */}
+        <Route path="/" element={<PaintersList />} /> 
+       
         <Route path="/painters/:id" element={<PainterDetail />} />
 
         {/* ---------- Painter Routes ---------- */}
