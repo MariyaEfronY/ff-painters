@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ import this
 import userAPI from "../../utils/userApi";
 import { toast } from "react-toastify";
 
@@ -11,13 +12,13 @@ const UserDashboard = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cacheBust, setCacheBust] = useState(Date.now());
 
+  const navigate = useNavigate(); // ✅ hook
+
   const fetchProfile = useCallback(async (showToast = false) => {
     try {
-      // add a throwaway query to avoid any caching layers
       const { data } = await userAPI.get("/me", { params: { t: Date.now() } });
       setUser(data);
       setForm(data);
-      // force <img> to re-load if URL stayed the same
       setCacheBust(Date.now());
       if (showToast) toast.success("Profile refreshed");
     } catch (err) {
@@ -85,7 +86,6 @@ const UserDashboard = () => {
           {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString()}
         </span>
 
-        {/* IMPORTANT: type="button" so it never submits any form */}
         <button
           type="button"
           onClick={handleRefreshClick}
@@ -104,22 +104,6 @@ const UserDashboard = () => {
           {isRefreshing ? "Refreshing..." : "Refresh"}
         </button>
       </div>
-      <button
-  type="button"
-  onClick={() => navigate("/user/bookings")}
-  style={{
-    marginTop: "20px",
-    padding: "8px 16px",
-    borderRadius: "6px",
-    background: "#28a745",
-    color: "white",
-    fontWeight: "bold",
-    border: "none",
-    cursor: "pointer",
-  }}
->
-  View My Bookings
-</button>
 
       {!edit ? (
         <>
@@ -131,7 +115,7 @@ const UserDashboard = () => {
 
           {user.profileImage && (
             <img
-              src={`${user.profileImage}?v=${cacheBust}`} // cache-bust so you see latest image
+              src={`${user.profileImage}?v=${cacheBust}`}
               alt="Profile"
               width={120}
               height={120}
@@ -141,6 +125,24 @@ const UserDashboard = () => {
 
           <br />
           <button onClick={() => setEdit(true)}>Edit Profile</button>
+
+          {/* ✅ View Bookings Button */}
+          <button
+            type="button"
+            onClick={() => navigate("/user/bookings")}
+            style={{
+              marginTop: "20px",
+              padding: "8px 16px",
+              borderRadius: "6px",
+              background: "#28a745",
+              color: "white",
+              fontWeight: "bold",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            View My Bookings
+          </button>
         </>
       ) : (
         <form onSubmit={handleUpdate}>
@@ -155,7 +157,6 @@ const UserDashboard = () => {
         </form>
       )}
     </div>
-    
   );
 };
 

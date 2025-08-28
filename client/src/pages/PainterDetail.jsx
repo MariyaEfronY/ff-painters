@@ -1,26 +1,40 @@
+// PainterDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const PainterDetails = () => {
   const { id } = useParams();
   const [painter, setPainter] = useState(null);
   const navigate = useNavigate();
- 
- useEffect(() => {
-  const fetchPainter = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
-setPainter(res.data); // this includes gallery
-    } catch (err) {
-      console.error("❌ Failed to load painter:", err.message);
-    }
-  };
-  fetchPainter();
-}, [id]);
 
+  useEffect(() => {
+    const fetchPainter = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
+        setPainter(res.data);
+      } catch (err) {
+        console.error("❌ Failed to load painter:", err.message);
+      }
+    };
+    fetchPainter();
+  }, [id]);
 
   if (!painter) return <p className="text-center mt-10">Loading...</p>;
+
+  // ✅ Booking handler
+  const handleBooking = () => {
+    const token = localStorage.getItem("userToken");
+    if (!token) {
+      // save the intended path
+      localStorage.setItem("redirectAfterLogin", `/book/${painter._id}`);
+      toast.info("Please signup/login to continue booking");
+      navigate("/user/signup"); // send to signup first
+    } else {
+      navigate(`/book/${painter._id}`);
+    }
+  };
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -36,33 +50,27 @@ setPainter(res.data); // this includes gallery
         <p className="mt-2">Bio: {painter.bio}</p>
       </div>
 
-      {/* Gallery Section */}
-<h2 className="text-xl font-semibold mt-6">Projects</h2>
-<div className="grid grid-cols-2 gap-3 mt-3">
-  {painter.gallery?.length > 0 ? (
-    painter.gallery.map((img, index) => (
-      <div key={index} className="bg-white shadow rounded p-2">
-        <img
-  src={`http://localhost:5000${img.image}`}
-  alt={img.description || "Project image"}
-  style={{ width: "30%",hight: "25%", borderRadius: "5px" }}
-/>
-
-
-
-
-        <p className="text-sm text-gray-600 mt-1">{img.description}</p>
+      <h2 className="text-xl font-semibold mt-6">Projects</h2>
+      <div className="grid grid-cols-2 gap-3 mt-3">
+        {painter.gallery?.length > 0 ? (
+          painter.gallery.map((img, index) => (
+            <div key={index} className="bg-white shadow rounded p-2">
+              <img
+                src={`http://localhost:5000${img.image}`}
+                alt={img.description || "Project image"}
+                style={{ width: "100%", borderRadius: "5px" }}
+              />
+              <p className="text-sm text-gray-600 mt-1">{img.description}</p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No projects uploaded yet.</p>
+        )}
       </div>
-    ))
-  ) : (
-    <p className="text-gray-500">No projects uploaded yet.</p>
-  )}
-</div>
-
 
       {/* Booking Button */}
       <button
-        onClick={() => navigate(`/book/${painter._id}`)}
+        onClick={handleBooking}
         className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full"
       >
         Book Painter

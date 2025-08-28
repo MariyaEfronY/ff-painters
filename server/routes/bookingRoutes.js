@@ -1,22 +1,16 @@
-import express from 'express';
-const router = express.Router();
-
+import express from "express";
 import {
   createBooking,
   getPainterBookings,
-  getCustomerBookings // ✅ correct name
-} from '../controllers/bookingController.js';
+  getCustomerBookings,
+  updateBookingStatus,
+} from "../controllers/bookingController.js";
 
+const router = express.Router();
 
-
-// Create a new booking
-router.post('/', createBooking);  
-
-// Get bookings for a painter
-router.get('/painter/:painterId', getPainterBookings);
-
-// Get bookings for a user
-router.get('/customer/:userId', getCustomerBookings);
-
+router.post("/", createBooking); // user books painter
+router.get("/customer/:customerId", getCustomerBookings); // user views own bookings
+router.get("/painter/:painterId", getPainterBookings); // painter views bookings
+router.put("/:bookingId/status", updateBookingStatus); // painter approves/rejects
 
 export default router;

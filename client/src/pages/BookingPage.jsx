@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const BookingPage = () => {
-  const { id } = useParams(); // painter ID
+  const { id } = useParams(); // painterId from URL
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    userName: "",
-    userEmail: "",
     date: "",
-    message: "",
+    time: "",
   });
 
   const handleChange = (e) => {
@@ -19,55 +18,58 @@ const BookingPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await axios.post(`http://localhost:5000/api/painter/${id}/book`, form);
-      alert("Booking sent!");
-      navigate("/"); // go to homepage or painters list
-    } catch (err) {
-      console.error(err);
-      alert("Failed to book painter.");
+      // Assuming you store logged-in user in localStorage
+      const customerId = localStorage.getItem("userId"); 
+      if (!customerId) {
+        toast.error("You must be logged in to book!");
+        return;
+      }
+
+      const res = await axios.post("http://localhost:5000/api/bookings", {
+        customerId,
+        painterId: id,
+        date: form.date,
+        time: form.time,
+      });
+
+      toast.success("Booking created successfully!");
+      navigate("/user/bookings"); // redirect to user bookings page
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create booking");
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-6">
-      <h1 className="text-xl font-bold mb-4">Book Painter</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="text"
-          name="userName"
-          placeholder="Your Name"
-          value={form.userName}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded"
-        />
-        <input
-          type="email"
-          name="userEmail"
-          placeholder="Your Email"
-          value={form.userEmail}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded"
-        />
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded-lg">
+      <h2 className="text-xl font-bold mb-4">Book This Painter</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="date"
           name="date"
           value={form.date}
           onChange={handleChange}
           required
-          className="border p-2 rounded"
+          className="w-full border p-2 rounded"
         />
-        <textarea
-          name="message"
-          placeholder="Message"
-          value={form.message}
+
+        <input
+          type="time"
+          name="time"
+          value={form.time}
           onChange={handleChange}
-          className="border p-2 rounded"
+          required
+          className="w-full border p-2 rounded"
         />
-        <button type="submit" className="bg-green-600 text-white p-2 rounded">
-          Book
+
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+        >
+          Confirm Booking
         </button>
       </form>
     </div>

@@ -17,8 +17,14 @@ const UserLogin = () => {
     try {
       const { data } = await userAPI.post("/login", form);
       localStorage.setItem("userToken", data.token);
-      navigate("/user/dashboard");
+
+      // ✅ check if redirectAfterLogin exists
+      const redirectPath =
+        localStorage.getItem("redirectAfterLogin") || "/user/dashboard";
+      localStorage.removeItem("redirectAfterLogin"); // cleanup
+
       toast.success("User Login successfully!");
+      navigate(redirectPath);
     } catch (err) {
       console.error("Login failed", err);
       toast.error("User Login error..!");
@@ -27,8 +33,19 @@ const UserLogin = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
-      <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} />
+      <input
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={handleChange}
+      />
       <button type="submit">Login</button>
     </form>
   );
