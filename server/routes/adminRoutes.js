@@ -1,7 +1,8 @@
 // routes/adminRoutes.js
 import express from "express";
-import { adminLogin, getDashboardStats, getAllUsers, deleteUser,
-         getAllPainters, approvePainter, deletePainter,
+import { adminLogin, getAdminStats, getAllUsers, deleteUser,
+         getAllPainters, updatePainterStatus, 
+        deletePainter,
          getAllBookings, cancelBooking,  adminSignup } from "../controllers/adminController.js";
 import { adminProtect } from "../middleware/adminProtect.js";
 
@@ -12,16 +13,17 @@ router.post("/login", adminLogin);
 router.post("/signup", adminSignup);
 
 // Dashboard
-router.get("/stats", adminProtect, getDashboardStats);
+router.get("/stats", getAdminStats);
 
 // Users
 router.get("/users", adminProtect, getAllUsers);
 router.delete("/users/:id", adminProtect, deleteUser);
 
 // Painters
-router.get("/painters", adminProtect, getAllPainters);
-router.put("/painters/approve/:id", adminProtect, approvePainter);
-router.delete("/painters/:id", adminProtect, deletePainter);
+// Painters Management
+router.get("/painters", getAllPainters);
+router.put("/painters/:id", updatePainterStatus);
+router.delete("/painters/:id", deletePainter);
 
 // Bookings
 router.get("/bookings", adminProtect, getAllBookings);

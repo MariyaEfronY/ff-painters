@@ -15,9 +15,13 @@ const PaintersPage = () => {
   };
 
   const handleApproval = async (id, status) => {
+  if (status === "deleted") {
+    await adminAPI.delete(`/painters/${id}`);
+  } else {
     await adminAPI.put(`/painters/${id}`, { status });
-    fetchPainters();
-  };
+  }
+  fetchPainters();
+};
 
   return (
     <div className="flex">
@@ -30,7 +34,7 @@ const PaintersPage = () => {
               <th className="p-2 border">Name</th>
               <th className="p-2 border">Email</th>
               <th className="p-2 border">City</th>
-              <th className="p-2 border">Status</th>
+              {/* <th className="p-2 border">Status</th> */}
               <th className="p-2 border">Actions</th>
             </tr>
           </thead>
@@ -40,14 +44,14 @@ const PaintersPage = () => {
                 <td className="p-2 border">{p.name}</td>
                 <td className="p-2 border">{p.email}</td>
                 <td className="p-2 border">{p.city}</td>
-                <td className="p-2 border">{p.status}</td>
+                {/* <td className="p-2 border">{p.status}</td> */}
                 <td className="p-2 border flex gap-2">
-                  <button onClick={() => handleApproval(p._id, "approved")} className="bg-green-500 text-white px-3 py-1 rounded">
+                  {/* <button onClick={() => handleApproval(p._id, "approved")} className="bg-green-500 text-white px-3 py-1 rounded">
                     Approve
                   </button>
                   <button onClick={() => handleApproval(p._id, "rejected")} className="bg-yellow-500 text-white px-3 py-1 rounded">
                     Reject
-                  </button>
+                  </button> */}
                   <button onClick={() => handleApproval(p._id, "deleted")} className="bg-red-500 text-white px-3 py-1 rounded">
                     Delete
                   </button>

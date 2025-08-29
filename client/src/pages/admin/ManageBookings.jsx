@@ -36,20 +36,24 @@ const BookingsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map((b) => (
-              <tr key={b._id}>
-                <td className="p-2 border">{b.customer?.name}</td>
-                <td className="p-2 border">{b.painter?.name}</td>
-                <td className="p-2 border">{new Date(b.date).toDateString()}</td>
-                <td className="p-2 border">{b.status}</td>
-                <td className="p-2 border">
-                  <button onClick={() => cancelBooking(b._id)} className="bg-red-500 text-white px-3 py-1 rounded">
-                    Cancel
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {bookings.map((b) => (
+    <tr key={b._id}>
+      <td className="p-2 border">{b.customerId?.name}</td>
+      <td className="p-2 border">{b.painterId?.name}</td>
+      <td className="p-2 border">{new Date(b.date).toDateString()}</td>
+      <td className="p-2 border">{b.status}</td>
+      <td className="p-2 border">
+        <button
+          onClick={() => cancelBooking(b._id)}
+          className="bg-red-500 text-white px-3 py-1 rounded"
+        >
+          Cancel
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
     </div>

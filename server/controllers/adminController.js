@@ -70,14 +70,14 @@ export const adminLogin = async (req, res) => {
   }
 };
 
-/* ---------- DASHBOARD OVERVIEW ---------- */
-export const getDashboardStats = async (req, res) => {
+/* ---------- ADMIN DASHBOARD STATS ---------- */
+export const getAdminStats = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalPainters = await Painter.countDocuments();
-    const totalBookings = await Booking.countDocuments();
+    const users = await User.countDocuments();
+    const painters = await Painter.countDocuments();
+    const bookings = await Booking.countDocuments();
 
-    res.json({ totalUsers, totalPainters, totalBookings });
+    res.json({ users, painters, bookings });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -94,25 +94,61 @@ export const deleteUser = async (req, res) => {
 };
 
 /* ---------- PAINTER MANAGEMENT ---------- */
+/* ---------- GET ALL PAINTERS ---------- */
 export const getAllPainters = async (req, res) => {
-  const painters = await Painter.find().select("-password");
-  res.json(painters);
+  try {
+    const painters = await Painter.find();
+    res.json(painters);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
-export const approvePainter = async (req, res) => {
-  const painter = await Painter.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
-  res.json(painter);
+
+/* ---------- UPDATE PAINTER STATUS ---------- */
+export const updatePainterStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const painter = await Painter.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    res.json({ message: "Painter updated", painter });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
+
+/* ---------- DELETE PAINTER ---------- */
 export const deletePainter = async (req, res) => {
-  await Painter.findByIdAndDelete(req.params.id);
-  res.json({ message: "Painter deleted" });
+  try {
+    const { id } = req.params;
+    const painter = await Painter.findByIdAndDelete(id);
+
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
+
+    res.json({ message: "Painter deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 /* ---------- BOOKING MANAGEMENT ---------- */
 export const getAllBookings = async (req, res) => {
-  const bookings = await Booking.find()
-    .populate("customerId", "name email")
-    .populate("painterId", "name email city");
-  res.json(bookings);
+  try {
+    const bookings = await Booking.find()
+      .populate("customerId", "name email") // ✅ populate customer details
+      .populate("painterId", "name email"); // ✅ populate painter details
+
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching bookings", error: err.message });
+  }
 };
 export const cancelBooking = async (req, res) => {
   await Booking.findByIdAndDelete(req.params.id);

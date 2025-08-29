@@ -11,7 +11,7 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         const { data } = await adminAPI.get("/stats");
-        setStats(data);
+setStats(data);
       } catch (err) {
         console.error(err);
       }
