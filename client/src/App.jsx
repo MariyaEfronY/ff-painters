@@ -3,8 +3,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 /* ---------- Main Pages ---------- */
-import PaintersList from "./pages/PaintersList";
 // import LandingPage from "./pages/LandingPage";
+import PaintersList from "./pages/PaintersList";
 import PainterDetail from "./pages/PainterDetail";
 
 /* ---------- Painter Pages ---------- */
@@ -14,23 +14,24 @@ import PainterDashboard from "./components/PainterDashboard";
 import EditProfilePage from "./pages/EditProfilePage";
 import UploadGallery from "./components/UploadGallery";  
 import GalleryPage from "./components/GalleryPage";
-import PainterBookingsPage from "./pages/painter/PainterBookingsPage"; // ✅ Corrected import
+import PainterBookingsPage from "./pages/painter/PainterBookingsPage"; 
 
 /* ---------- User Pages ---------- */
 import UserSignup from "./pages/user/UserSignup";
 import UserLogin from "./pages/user/UserLogin";
 import UserDashboard from "./pages/user/UserDashboard";
 import UserEditProfile from "./pages/user/UserEditProfile";
-import BookingPage from "./pages/BookingPage"; // ✅ User booking page
-import UserBookingsPage from "./pages/user/UserBookingsPage"; // ✅ Corrected import
+import BookingPage from "./pages/BookingPage"; 
+import UserBookingsPage from "./pages/user/UserBookingsPage"; 
 
+/* ---------- Protected Route ---------- */
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-
         {/* ---------- Main Page ---------- */}
         {/* <Route path="/" element={<LandingPage />} /> */}
         <Route path="/" element={<PaintersList />} /> 
@@ -43,18 +44,25 @@ function App() {
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/upload-gallery" element={<UploadGallery />} />
         <Route path="/gallery" element={<GalleryPage />} />
-        <Route path="/painter/bookings" element={<PainterBookingsPage />} /> {/* ✅ */}
+        <Route path="/painter/bookings" element={<PainterBookingsPage />} />
 
         {/* ---------- User Routes ---------- */}
         <Route path="/user/signup" element={<UserSignup />} />
         <Route path="/user/login" element={<UserLogin />} />
         <Route path="/user/dashboard" element={<UserDashboard />} />
         <Route path="/user/edit-profile" element={<UserEditProfile />} />
-        <Route path="/book/:id" element={<BookingPage />} /> {/* ✅ */}
-        <Route path="/user/bookings" element={<UserBookingsPage />} /> {/* ✅ */}
 
-        
+        {/* 🔒 Protected Booking Page */}
+        <Route
+          path="/book/:id"
+          element={
+            <ProtectedRoute>
+              <BookingPage />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route path="/user/bookings" element={<UserBookingsPage />} />
       </Routes>
     </Router>
   );

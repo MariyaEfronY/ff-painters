@@ -5,12 +5,16 @@ import {
   getCustomerBookings,
   updateBookingStatus,
 } from "../controllers/bookingController.js";
+import { userProtect, painterProtect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", createBooking); // user books painter
-router.get("/customer/:customerId", getCustomerBookings); // user views own bookings
-router.get("/painter/:painterId", getPainterBookings); // painter views bookings
-router.put("/:bookingId/status", updateBookingStatus); // painter approves/rejects
+// ✅ User routes
+router.post("/", userProtect, createBooking); 
+router.get("/my-bookings", userProtect, getCustomerBookings); 
+
+// ✅ Painter routes
+router.get("/painter/bookings", painterProtect, getPainterBookings); 
+router.put("/:bookingId/status", painterProtect, updateBookingStatus);
 
 export default router;
