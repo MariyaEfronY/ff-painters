@@ -11,6 +11,7 @@ import fs from 'fs'; // ✅ add this
 import painterRoutes from './routes/painterRoutes.js';
 import painterImageRoutes from './routes/painterImageRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import adminRoutes from "./routes/adminRoutes.js";
 
 
 // User Routes
@@ -51,13 +52,16 @@ app.use(
 );
 app.use("/uploads/galleryImages", express.static(path.join(process.cwd(), "uploads/galleryImages")));
 
-// API routes
+// Painter routes
 app.use("/api/painter", painterRoutes);
 app.use('/api/painter/images', painterImageRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 // User Routes
 app.use("/api/users", userRoutes);
+
+// Admin Routes
+app.use("/api/admin", adminRoutes);
 
 // Error handling
 process.on('uncaughtException', (err) => console.error('Unhandled Exception:', err));

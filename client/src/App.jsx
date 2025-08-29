@@ -3,7 +3,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 /* ---------- Main Pages ---------- */
-// import LandingPage from "./pages/LandingPage";
 import PaintersList from "./pages/PaintersList";
 import PainterDetail from "./pages/PainterDetail";
 
@@ -24,6 +23,14 @@ import UserEditProfile from "./pages/user/UserEditProfile";
 import BookingPage from "./pages/BookingPage"; 
 import UserBookingsPage from "./pages/user/UserBookingsPage"; 
 
+/* ---------- Admin Pages ---------- */
+import AdminSignup from "./pages/admin/AdminSignup";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageUsers from "./pages/admin/ManageUsers";
+import ManagePainters from "./pages/admin/ManagePainters";
+import ManageBookings from "./pages/admin/ManageBookings";
+
 /* ---------- Protected Route ---------- */
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -33,7 +40,6 @@ function App() {
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         {/* ---------- Main Page ---------- */}
-        {/* <Route path="/" element={<LandingPage />} /> */}
         <Route path="/" element={<PaintersList />} /> 
         <Route path="/painters/:id" element={<PainterDetail />} />
 
@@ -51,8 +57,6 @@ function App() {
         <Route path="/user/login" element={<UserLogin />} />
         <Route path="/user/dashboard" element={<UserDashboard />} />
         <Route path="/user/edit-profile" element={<UserEditProfile />} />
-
-        {/* 🔒 Protected Booking Page */}
         <Route
           path="/book/:id"
           element={
@@ -61,8 +65,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route path="/user/bookings" element={<UserBookingsPage />} />
+
+        {/* ---------- Admin Routes ---------- */}
+        <Route path="/admin/signup" element={<AdminSignup />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<ManageUsers />} />
+        <Route path="/admin/painters" element={<ManagePainters />} />
+        <Route path="/admin/bookings" element={<ManageBookings />} />
       </Routes>
     </Router>
   );
