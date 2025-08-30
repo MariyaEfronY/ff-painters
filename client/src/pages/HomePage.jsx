@@ -78,7 +78,7 @@ const HomePage = () => {
 
       {/* ✅ Featured Painters Section */}
       <section className="px-6 sm:px-10 lg:px-16 py-16">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-textDark">
           Featured Painters
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -95,18 +95,22 @@ const HomePage = () => {
                   className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
                 />
                 <h3 className="text-lg sm:text-xl font-semibold">{p.name}</h3>
-                <p className="text-gray-500 text-sm sm:text-base">{p.city}</p>
-                <p className="text-xs sm:text-sm mt-2 line-clamp-2">{p.bio}</p>
+                <p className="text-textDark/70 text-sm sm:text-base">
+                  {p.city}
+                </p>
+                <p className="text-xs sm:text-sm mt-2 line-clamp-2 text-textDark/60">
+                  {p.bio}
+                </p>
                 <button
                   onClick={() => navigate(`/painters/${p._id}`)}
-                  className="mt-4 bg-secondary text-white px-4 py-2 rounded-lg"
+                  className="mt-4 bg-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
                 >
                   View Profile
                 </button>
               </motion.div>
             ))
           ) : (
-            <p className="text-center col-span-full text-gray-500">
+            <p className="text-center col-span-full text-textDark/60">
               No featured painters found.
             </p>
           )}
@@ -115,7 +119,7 @@ const HomePage = () => {
 
       {/* ✅ How It Works Section */}
       <section className="px-6 sm:px-10 lg:px-16 py-16 bg-background">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-textDark">
           How It Works
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-center">

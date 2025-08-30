@@ -37,6 +37,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
+    <div className="min-h-screen bg-background text-textDark">
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
@@ -78,6 +79,7 @@ function App() {
         <Route path="/admin/bookings" element={<ManageBookings />} />
       </Routes>
     </Router>
+    </div>
   );
 }
 
