@@ -1,6 +1,6 @@
 import express from "express";
 import { registerUser, loginUser, getUserProfile, updateUser,
-    getUserBookings
+    getUserBookings, logoutUser
  } from "../controllers/userController.js";
 import { userProtect } from "../middleware/auth.js";
 import { uploadUserProfileImage } from "../middleware/uploadMiddleware.js";
@@ -19,5 +19,8 @@ router.put("/me", userProtect, uploadUserProfileImage.single("profileImage"), up
 
 // ✅ User bookings route
 router.get("/bookings/me", userProtect, getUserBookings);
+
+
+router.post("/logout", logoutUser);
 
 export default router;

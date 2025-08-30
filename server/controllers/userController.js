@@ -130,3 +130,14 @@ export const getUserBookings = async (req, res) => {
     res.status(500).json({ message: "Error fetching user bookings", error: err.message });
   }
 };
+
+
+// ✅ Logout User
+export const logoutUser = async (req, res) => {
+  try {
+    // If you're not storing blacklisted tokens, just tell frontend to clear token
+    res.json({ message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Logout failed", error: err.message });
+  }
+};

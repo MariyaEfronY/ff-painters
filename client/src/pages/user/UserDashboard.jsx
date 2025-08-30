@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ import this
+import { useNavigate } from "react-router-dom";
 import userAPI from "../../utils/userApi";
 import { toast } from "react-toastify";
 
@@ -12,8 +12,9 @@ const UserDashboard = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cacheBust, setCacheBust] = useState(Date.now());
 
-  const navigate = useNavigate(); // ✅ hook
+  const navigate = useNavigate();
 
+  // ✅ Fetch Profile
   const fetchProfile = useCallback(async (showToast = false) => {
     try {
       const { data } = await userAPI.get("/me", { params: { t: Date.now() } });
@@ -37,6 +38,7 @@ const UserDashboard = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ✅ Update Profile
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -54,17 +56,25 @@ const UserDashboard = () => {
     }
   };
 
+  // ✅ Refresh button
   const handleRefreshClick = async () => {
     setIsRefreshing(true);
     await fetchProfile(true);
     setIsRefreshing(false);
   };
 
+  // ✅ Logout handler (frontend only)
+  const handleLogout = () => {
+    localStorage.removeItem("userToken"); // remove token
+    toast.success("Logged out successfully");
+    navigate("/"); // redirect to login page
+  };
+
   if (!user) return <p>Loading...</p>;
 
   return (
     <div style={{ position: "relative", padding: "20px" }}>
-      {/* DateTime + Refresh */}
+      {/* DateTime + Refresh + Logout */}
       <div
         style={{
           position: "absolute",
@@ -102,6 +112,24 @@ const UserDashboard = () => {
           }}
         >
           {isRefreshing ? "Refreshing..." : "Refresh"}
+        </button>
+
+        {/* ✅ Logout Button */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          style={{
+            padding: "6px 12px",
+            fontSize: "14px",
+            borderRadius: "6px",
+            border: "none",
+            background: "#dc3545",
+            color: "white",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          Logout
         </button>
       </div>
 
