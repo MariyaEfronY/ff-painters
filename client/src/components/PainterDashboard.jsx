@@ -160,6 +160,37 @@ const PainterDashboard = () => {
       >
         📋 View Bookings
       </button>
+
+
+      <br />
+
+{/* ✅ Logout Button */}
+<button
+  style={{
+    marginTop: "10px",
+    backgroundColor: "#dc3545",
+    color: "white",
+    padding: "8px 12px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  }}
+  onClick={() => {
+    const token = localStorage.getItem("painterToken");
+    if (token) {
+      // call backend logout (optional)
+      axios.post("http://localhost:5000/api/painter/logout", {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch((err) => console.error("Logout error:", err.message));
+    }
+
+    // clear local storage and redirect
+    localStorage.removeItem("painterToken");
+    navigate("/");
+  }}
+>
+  🚪 Logout
+</button>
     </div>
   );
 };

@@ -363,3 +363,16 @@ export const updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: "Error updating booking", error: err.message });
   }
 };
+
+
+/* ---------- LOGOUT ---------- */
+export const painterLogout = async (req, res) => {
+  try {
+    // For JWT apps, logout = frontend deletes token.
+    // Here, just return success so frontend can handle it.
+    res.status(200).json({ message: "Logout successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error during logout" });
+  }
+};
+

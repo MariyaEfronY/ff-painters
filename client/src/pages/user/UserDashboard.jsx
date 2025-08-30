@@ -77,7 +77,7 @@ const UserDashboard = () => {
       >
         <span
           style={{
-            fontFamily: "'Courier New', monospace",
+            fontFamily: "'Orbitron', sans-serif",
             fontSize: "18px",
             fontWeight: "bold",
             color: "#444",
