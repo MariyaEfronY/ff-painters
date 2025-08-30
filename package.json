@@ -1,10 +1,12 @@
 {
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.12",
     "dotenv": "^17.2.0",
     "framer-motion": "^12.23.12",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.542.0",
     "react-router-dom": "^7.7.1",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "tailwindcss": "^4.1.12"
   }
 }
