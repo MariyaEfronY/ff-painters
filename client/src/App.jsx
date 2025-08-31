@@ -36,6 +36,15 @@ import ManageBookings from "./pages/admin/ManageBookings";
 /* ---------- Protected Route ---------- */
 import ProtectedRoute from "./components/ProtectedRoute";
 
+
+/* ---------- Login Pages ---------- */
+import LoginChoice from "./pages/LoginChoice";
+import SignupChoice from "./pages/SignupChoice";
+
+/* ---------- Footer Pages ---------- */
+import ContactPage from "./pages/ContactPage";
+import AboutPage from "./pages/AboutPage";
+
 function App() {
   return (
     <div className="min-h-screen bg-background text-textDark">
@@ -80,6 +89,20 @@ function App() {
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/painters" element={<ManagePainters />} />
         <Route path="/admin/bookings" element={<ManageBookings />} />
+
+        {/* ---------- Login Routes ---------- */}
+        <Route path="/login-choice" element={<LoginChoice />} />
+        <Route path="/signup-choice" element={<SignupChoice />} />
+
+
+        {/* ---------- Footer Routes ---------- */}
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/about" element={<AboutPage />} />
+
+
+
+
+
       </Routes>
     </Router>
     </div>

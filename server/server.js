@@ -12,6 +12,7 @@ import painterRoutes from './routes/painterRoutes.js';
 import painterImageRoutes from './routes/painterImageRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import adminRoutes from "./routes/adminRoutes.js";
+import subscribeRoutes from "./routes/subscribeRoutes.js";
 
 
 // User Routes
@@ -62,6 +63,9 @@ app.use("/api/users", userRoutes);
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);
+
+// Subscribe Routes
+app.use("/api/subscribe", subscribeRoutes);
 
 // Error handling
 process.on('uncaughtException', (err) => console.error('Unhandled Exception:', err));

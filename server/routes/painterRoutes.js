@@ -58,6 +58,7 @@ router.delete(
 
 // 🔹 Public
 router.get("/main", getAllPainters);  
+router.get("/", getAllPainters); 
 router.get("/:id", getPainterById);
 router.get("/:id/gallery", getPainterGallery);
 router.post("/:id/book", createBooking);
