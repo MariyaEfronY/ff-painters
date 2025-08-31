@@ -22,142 +22,237 @@ const HomePage = () => {
     fetchPainters();
   }, []);
 
+  const colors = {
+    primary: "#ec4899",      // Pink
+    secondary: "#f472b6",    // Lighter pink
+    background: "#f3f4f6",   // Light gray
+    textDark: "#111827",     // Dark gray/black
+    cardBg: "#ffffff",        // White cards
+    textMuted: "#6b7280",     // Muted gray text
+  };
+
   return (
-    <div className="bg-background text-textDark font-sans">
-      {/* ✅ Hero Section */}
-      <section className="flex flex-col-reverse lg:flex-row items-center justify-between px-6 sm:px-10 lg:px-16 py-16 lg:py-24 bg-gradient-to-r from-primary to-secondary text-white">
-        {/* Left content */}
+    <div style={{ backgroundColor: colors.background, color: colors.textDark, fontFamily: "'Poppins', sans-serif" }}>
+      {/* Hero Section */}
+      <section
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background Lottie Animation */}
+        <Lottie
+          animationData={heroAnimation}
+          loop={true}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+            opacity: 0.7,
+          }}
+        />
+
+        {/* Overlay Text & Button */}
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-full lg:w-1/2 text-center lg:text-left"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          style={{
+            position: "relative",
+            zIndex: 1,
+            textAlign: "center",
+            color: "#fff",
+            padding: "0 1.5rem",
+            maxWidth: "900px",
+          }}
         >
-          <h1 className="text-3xl sm:text-4xl text-primary lg:text-5xl font-bold mb-4 leading-tight">
+          <h1
+            style={{
+              fontSize: "2.75rem",
+              fontWeight: "bold",
+              marginBottom: "1rem",
+              lineHeight: 1.2,
+              textShadow: "0px 2px 10px rgba(0,0,0,0.6)",
+            }}
+          >
             Find the Best Painters for Your Home & Office
           </h1>
-          <p className="mb-6 text-base sm:text-lg lg:text-xl">
-            Book trusted painters with just a few clicks. Browse profiles, check
-            reviews, and hire instantly.
+          <p
+            style={{
+              fontSize: "1.25rem",
+              marginBottom: "2rem",
+              textShadow: "0px 2px 8px rgba(0,0,0,0.5)",
+            }}
+          >
+            Book trusted painters with just a few clicks. Browse profiles, check reviews, and hire instantly.
           </p>
-          <button className="bg-white text-primary px-6 py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            style={{
+              background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`,
+              color: "#fff",
+              padding: "0.75rem 2rem",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderRadius: "1rem",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 6px 15px rgba(0,0,0,0.3)",
+            }}
+            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: "smooth" })}
+          >
             Find Painters
-          </button>
-        </motion.div>
-
-        {/* Right animation */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-64 sm:w-80 lg:w-96 mb-10 lg:mb-0"
-        >
-          <Lottie animationData={heroAnimation} loop={true} />
+          </motion.button>
         </motion.div>
       </section>
 
-      {/* ✅ Search Section */}
-      <section className="px-6 sm:px-10 lg:px-16 py-10 bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-4">
+      {/* Search Section */}
+      <section style={{ padding: "2.5rem 2rem", backgroundColor: colors.cardBg, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
+        <div style={{ maxWidth: "1024px", margin: "0 auto", display: "flex", flexWrap: "wrap", gap: "1rem" }}>
           <input
             type="text"
             placeholder="Enter city / location..."
-            className="flex-1 border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary"
+            style={{
+              flex: 1,
+              padding: "0.75rem",
+              borderRadius: "0.5rem",
+              border: "1px solid #d1d5db",
+              outline: "none",
+              color: colors.textDark,
+            }}
           />
-          <select className="flex-1 border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary">
+          <select
+            style={{
+              flex: 1,
+              padding: "0.75rem",
+              borderRadius: "0.5rem",
+              border: "1px solid #d1d5db",
+              outline: "none",
+              color: colors.textDark,
+            }}
+          >
             <option>Select Specialization</option>
             <option>Interior</option>
             <option>Exterior</option>
             <option>Wall Art</option>
           </select>
-          <button className="bg-primary text-white px-6 py-3 rounded-lg hover:scale-105 transition">
+          <button
+            style={{
+              backgroundColor: colors.primary,
+              color: "#fff",
+              padding: "0.75rem 1.5rem",
+              borderRadius: "0.5rem",
+              cursor: "pointer",
+            }}
+          >
             Search
           </button>
         </div>
       </section>
 
-      {/* ✅ Featured Painters Section */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-textDark">
+      {/* Featured Painters */}
+      <section style={{ padding: "4rem 2rem" }}>
+        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: "bold", marginBottom: "2.5rem" }}>
           Featured Painters
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
           {painters.length > 0 ? (
             painters.map((p) => (
               <motion.div
                 key={p._id}
                 whileHover={{ scale: 1.05 }}
-                className="bg-white rounded-xl shadow-lg p-6 text-center"
+                style={{
+                  backgroundColor: colors.cardBg,
+                  borderRadius: "1rem",
+                  padding: "1.5rem",
+                  textAlign: "center",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                }}
               >
                 <img
                   src={`http://localhost:5000/uploads/profileImages/${p.profileImage}`}
                   alt={p.name}
-                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+                  style={{ width: "6rem", height: "6rem", borderRadius: "50%", margin: "0 auto 1rem", objectFit: "cover" }}
                 />
-                <h3 className="text-lg sm:text-xl font-semibold">{p.name}</h3>
-                <p className="text-textDark/70 text-sm sm:text-base">
-                  {p.city}
-                </p>
-                <p className="text-xs sm:text-sm mt-2 line-clamp-2 text-textDark/60">
+                <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
+                <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    marginTop: "0.5rem",
+                    color: colors.textMuted,
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                  }}
+                >
                   {p.bio}
                 </p>
                 <button
                   onClick={() => navigate(`/painters/${p._id}`)}
-                  className="mt-4 bg-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+                  style={{
+                    marginTop: "1rem",
+                    backgroundColor: colors.secondary,
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.5rem",
+                    cursor: "pointer",
+                  }}
                 >
                   View Profile
                 </button>
               </motion.div>
             ))
           ) : (
-            <p className="text-center col-span-full text-textDark/60">
-              No featured painters found.
-            </p>
+            <p style={{ textAlign: "center", color: colors.textMuted }}>No featured painters found.</p>
           )}
         </div>
       </section>
 
-      {/* ✅ How It Works Section */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16 bg-background">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-textDark">
-          How It Works
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-center">
+      {/* How It Works */}
+      <section style={{ padding: "4rem 2rem", backgroundColor: colors.background, textAlign: "center" }}>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: "bold", marginBottom: "2.5rem" }}>How It Works</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "2rem" }}>
           <div>
-            <Search className="w-12 h-12 mx-auto text-primary mb-4" />
-            <h4 className="font-semibold">Browse Painters</h4>
+            <Search style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} />
+            <h4 style={{ fontWeight: 600 }}>Browse Painters</h4>
           </div>
           <div>
-            <Calendar className="w-12 h-12 mx-auto text-primary mb-4" />
-            <h4 className="font-semibold">Book Instantly</h4>
+            <Calendar style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} />
+            <h4 style={{ fontWeight: 600 }}>Book Instantly</h4>
           </div>
           <div>
-            <Paintbrush className="w-12 h-12 mx-auto text-primary mb-4" />
-            <h4 className="font-semibold">Get Painted</h4>
+            <Paintbrush style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} />
+            <h4 style={{ fontWeight: 600 }}>Get Painted</h4>
           </div>
           <div>
-            <Home className="w-12 h-12 mx-auto text-primary mb-4" />
-            <h4 className="font-semibold">Enjoy Your Home</h4>
+            <Home style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} />
+            <h4 style={{ fontWeight: 600 }}>Enjoy Your Home</h4>
           </div>
         </div>
       </section>
 
-      {/* ✅ Footer */}
-      <footer className="bg-primary text-white py-8 text-center">
-        <p className="text-sm sm:text-base">
-          © 2025 Painter Booking. All rights reserved.
-        </p>
-        <div className="mt-4 flex flex-wrap justify-center gap-6 text-sm sm:text-base">
-          <a href="#">About</a>
-          <a href="#">Contact</a>
-          <a href="#">Privacy</a>
+      {/* Footer */}
+      <footer style={{ backgroundColor: colors.primary, color: "#fff", padding: "2rem", textAlign: "center" }}>
+        <p style={{ fontSize: "0.875rem" }}>© 2025 Painter Booking. All rights reserved.</p>
+        <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1.5rem", fontSize: "0.875rem" }}>
+          <a href="#" style={{ color: "#fff" }}>About</a>
+          <a href="#" style={{ color: "#fff" }}>Contact</a>
+          <a href="#" style={{ color: "#fff" }}>Privacy</a>
         </div>
       </footer>
     </div>
   );
-
-
-
 };
 
 export default HomePage;
