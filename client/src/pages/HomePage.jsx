@@ -33,7 +33,7 @@ const HomePage = () => {
           transition={{ duration: 0.8 }}
           className="w-full lg:w-1/2 text-center lg:text-left"
         >
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl text-primary lg:text-5xl font-bold mb-4 leading-tight">
             Find the Best Painters for Your Home & Office
           </h1>
           <p className="mb-6 text-base sm:text-lg lg:text-xl">
@@ -155,6 +155,9 @@ const HomePage = () => {
       </footer>
     </div>
   );
+
+
+
 };
 
 export default HomePage;

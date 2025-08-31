@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../src/index.css"; 
 
 /* ---------- Main Pages ---------- */
 import HomePage from "./pages/HomePage";   // ✅ New Homepage
@@ -41,6 +42,8 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
+
+        
         {/* ---------- Main Page ---------- */}
         <Route path="/" element={<HomePage />} />    {/* ✅ Default homepage */}
         <Route path="/painters" element={<PaintersList />} /> {/* Painter list */}
