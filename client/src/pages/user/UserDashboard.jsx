@@ -14,17 +14,25 @@ const UserDashboard = () => {
 
   const navigate = useNavigate();
 
-  // ✅ Fetch Profile
+  const colors = {
+    primary: "#ec4899", // pink
+    secondary: "#f472b6",
+    background: "#f3f4f6",
+    textDark: "#111827",
+    cardBg: "#fff",
+    textMuted: "#6b7280",
+  };
+
   const fetchProfile = useCallback(async (showToast = false) => {
     try {
       const { data } = await userAPI.get("/me", { params: { t: Date.now() } });
       setUser(data);
       setForm(data);
       setCacheBust(Date.now());
-      if (showToast) toast.success("Profile refreshed");
+      if (showToast) toast.success("✨ Profile refreshed!");
     } catch (err) {
       console.error("Fetch profile failed", err);
-      if (showToast) toast.error("Failed to refresh profile");
+      if (showToast) toast.error("❌ Failed to refresh profile");
     }
   }, []);
 
@@ -34,11 +42,8 @@ const UserDashboard = () => {
     return () => clearInterval(timer);
   }, [fetchProfile]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  // ✅ Update Profile
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -47,141 +52,167 @@ const UserDashboard = () => {
       if (profileImage) fd.append("profileImage", profileImage);
 
       await userAPI.put("/me", fd, { headers: { "Content-Type": "multipart/form-data" } });
-
       setEdit(false);
       await fetchProfile(true);
     } catch (err) {
       console.error("Update failed", err);
-      toast.error("Update failed");
+      toast.error("❌ Update failed");
     }
   };
 
-  // ✅ Refresh button
   const handleRefreshClick = async () => {
     setIsRefreshing(true);
     await fetchProfile(true);
     setIsRefreshing(false);
   };
 
-  // ✅ Logout handler (frontend only)
   const handleLogout = () => {
-    localStorage.removeItem("userToken"); // remove token
-    toast.success("Logged out successfully");
-    navigate("/"); // redirect to login page
+    localStorage.removeItem("userToken");
+    toast.success("👋 Logged out successfully");
+    navigate("/");
   };
 
-  if (!user) return <p>Loading...</p>;
+  if (!user) return <p style={{ textAlign: "center", color: colors.textMuted }}>Loading...</p>;
 
   return (
-    <div style={{ position: "relative", padding: "20px" }}>
-      {/* DateTime + Refresh + Logout */}
-      <div
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "20px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "'Orbitron', sans-serif",
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "#444",
-          }}
-        >
-          {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString()}
+    <div style={{ padding: "20px", backgroundColor: colors.background, minHeight: "100vh", fontFamily: "'Poppins', sans-serif" }}>
+      {/* Header: DateTime + Refresh + Logout */}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginBottom: "2rem", flexWrap: "wrap" }}>
+        <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "18px", fontWeight: "bold", color: colors.textDark }}>
+          🕒 {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString()}
         </span>
 
         <button
-          type="button"
           onClick={handleRefreshClick}
           disabled={isRefreshing}
           style={{
-            padding: "6px 12px",
-            fontSize: "14px",
-            borderRadius: "6px",
+            padding: "6px 14px",
+            borderRadius: "8px",
             border: "none",
-            background: isRefreshing ? "#6c757d" : "#007BFF",
+            background: isRefreshing ? "#6c757d" : colors.primary,
             color: "white",
             cursor: isRefreshing ? "not-allowed" : "pointer",
             fontWeight: "bold",
+            transition: "0.2s",
           }}
         >
-          {isRefreshing ? "Refreshing..." : "Refresh"}
+          {isRefreshing ? "🔄 Refreshing..." : "🔄 Refresh"}
         </button>
 
-        {/* ✅ Logout Button */}
         <button
-          type="button"
           onClick={handleLogout}
           style={{
-            padding: "6px 12px",
-            fontSize: "14px",
-            borderRadius: "6px",
+            padding: "6px 14px",
+            borderRadius: "8px",
             border: "none",
-            background: "#dc3545",
+            background: "#ef4444",
             color: "white",
             cursor: "pointer",
             fontWeight: "bold",
           }}
         >
-          Logout
+          🚪 Logout
         </button>
       </div>
 
+      {/* Profile Section */}
       {!edit ? (
-        <>
-          <h2>Welcome, {user.name}</h2>
-          <p>Email: {user.email}</p>
-          <p>Phone: {user.phone}</p>
-          <p>City: {user.city}</p>
-          <p>Bio: {user.bio}</p>
-
+        <div
+          style={{
+            backgroundColor: colors.cardBg,
+            padding: "2rem",
+            borderRadius: "1rem",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            maxWidth: "500px",
+            margin: "0 auto",
+            textAlign: "center",
+          }}
+        >
           {user.profileImage && (
-            <img
-              src={`${user.profileImage}?v=${cacheBust}`}
-              alt="Profile"
-              width={120}
-              height={120}
-              style={{ borderRadius: "50%", objectFit: "cover" }}
-            />
-          )}
+  <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+    <img
+      src={`${user.profileImage}?v=${cacheBust}`}
+      alt="Profile"
+      width={140}
+      height={140}
+      style={{
+        borderRadius: "50%",
+        objectFit: "cover",
+        border: `4px solid ${colors.primary}`,
+      }}
+    />
+  </div>
+)}
 
-          <br />
-          <button onClick={() => setEdit(true)}>Edit Profile</button>
 
-          {/* ✅ View Bookings Button */}
-          <button
-            type="button"
-            onClick={() => navigate("/user/bookings")}
-            style={{
-              marginTop: "20px",
-              padding: "8px 16px",
-              borderRadius: "6px",
-              background: "#28a745",
-              color: "white",
-              fontWeight: "bold",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            View My Bookings
-          </button>
-        </>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: "bold", marginBottom: "1rem" }}>👋 Welcome, {user.name}</h2>
+          <p>📧 Email: {user.email}</p>
+          <p>📱 Phone: {user.phone}</p>
+          <p>🏙️ City: {user.city}</p>
+          <p>📝 Bio: {user.bio}</p>
+
+          <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "1.5rem", flexWrap: "wrap" }}>
+            <button
+              onClick={() => setEdit(true)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "none",
+                background: colors.secondary,
+                color: "white",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              ✏️ Edit Profile
+            </button>
+
+            <button
+              onClick={() => navigate("/user/bookings")}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "none",
+                background: "#22c55e",
+                color: "white",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              📅 View My Bookings
+            </button>
+          </div>
+        </div>
       ) : (
-        <form onSubmit={handleUpdate}>
-          <input name="name" value={form.name || ""} onChange={handleChange} placeholder="Name" />
-          <input name="email" value={form.email || ""} onChange={handleChange} placeholder="Email" />
-          <input name="phone" value={form.phone || ""} onChange={handleChange} placeholder="Phone" />
-          <input name="city" value={form.city || ""} onChange={handleChange} placeholder="City" />
-          <textarea name="bio" value={form.bio || ""} onChange={handleChange} placeholder="Bio" />
+        <form
+          onSubmit={handleUpdate}
+          style={{
+            backgroundColor: colors.cardBg,
+            padding: "2rem",
+            borderRadius: "1rem",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            maxWidth: "500px",
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <input name="name" value={form.name || ""} onChange={handleChange} placeholder="Name" style={{ padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid #d1d5db" }} />
+          <input name="email" value={form.email || ""} onChange={handleChange} placeholder="Email" style={{ padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid #d1d5db" }} />
+          <input name="phone" value={form.phone || ""} onChange={handleChange} placeholder="Phone" style={{ padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid #d1d5db" }} />
+          <input name="city" value={form.city || ""} onChange={handleChange} placeholder="City" style={{ padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid #d1d5db" }} />
+          <textarea name="bio" value={form.bio || ""} onChange={handleChange} placeholder="Bio" style={{ padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid #d1d5db" }} />
           <input type="file" onChange={(e) => setProfileImage(e.target.files[0])} />
-          <button type="submit">Save</button>
-          <button type="button" onClick={() => setEdit(false)}>Cancel</button>
+
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
+            <button type="submit" style={{ padding: "8px 16px", borderRadius: "8px", background: colors.primary, color: "white", border: "none", cursor: "pointer", fontWeight: "bold" }}>
+              💾 Save
+            </button>
+            <button type="button" onClick={() => setEdit(false)} style={{ padding: "8px 16px", borderRadius: "8px", background: "#6b7280", color: "white", border: "none", cursor: "pointer", fontWeight: "bold" }}>
+              ❌ Cancel
+            </button>
+          </div>
         </form>
       )}
     </div>
