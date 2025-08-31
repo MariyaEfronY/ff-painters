@@ -2,11 +2,18 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// Status color mapping
+const statusColors = {
+  pending: "bg-yellow-100 text-yellow-800",
+  approved: "bg-green-100 text-green-800",
+  rejected: "bg-red-100 text-red-800",
+  unknown: "bg-gray-100 text-gray-700",
+};
+
 const PainterBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date()); // ⏰ Date + Time
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Fetch painter bookings
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem("painterToken");
@@ -18,28 +25,22 @@ const PainterBookingsPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       setBookings(res.data);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch bookings");
     }
   };
 
-  // Update booking status (approve/reject)
   const handleStatusChange = async (bookingId, status) => {
     try {
       const token = localStorage.getItem("painterToken");
-
       await axios.put(
         `http://localhost:5000/api/bookings/${bookingId}/status`,
         { status },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       toast.success(`Booking ${status}`);
-      fetchBookings(); // refresh list
+      fetchBookings();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update status");
     }
@@ -47,22 +48,14 @@ const PainterBookingsPage = () => {
 
   useEffect(() => {
     fetchBookings();
-
-    // ⏰ update every second
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="p-6">
-      {/* ⏰ Date + Time in top-right */}
-      <div
-        className="fixed top-3 right-4 z-50 text-purple-700 font-semibold tracking-wide"
-        style={{
-          fontSize: "16px",
-          fontFamily: "'Orbitron', sans-serif",
-        }}
-      >
+    <div className="min-h-screen bg-gray-50 p-6 font-sans">
+      {/* Current Date & Time */}
+      <div className="fixed top-4 right-4 text-gray-600 font-medium tracking-wide text-sm">
         {currentTime.toLocaleDateString("en-US", {
           weekday: "short",
           year: "numeric",
@@ -72,48 +65,62 @@ const PainterBookingsPage = () => {
         - {currentTime.toLocaleTimeString()}
       </div>
 
-      <h2 className="text-xl font-bold mb-4">My Painter Bookings</h2>
+      {/* Page Header */}
+      <header className="mb-6">
+        <h1 className="text-3xl font-semibold text-gray-800">My Painter Bookings</h1>
+        <p className="text-gray-500 mt-1">Keep track of all your appointments</p>
+      </header>
+
+      {/* Bookings */}
       {bookings.length === 0 ? (
-        <p>No bookings yet.</p>
+        <p className="text-gray-500 text-center mt-12 text-lg">No bookings available.</p>
       ) : (
-        bookings.map((b) => (
-          <div
-            key={b._id}
-            className="border p-4 mb-2 rounded shadow-sm flex justify-between items-center"
-          >
-            <div>
-              <p>
-                <strong>Customer:</strong> {b.customerId?.name} (
-                {b.customerId?.email})
-              </p>
-              <p>
-                <strong>Date:</strong> {b.date}
-              </p>
-              <p>
-                <strong>Time:</strong> {b.time}
-              </p>
-              <p>
-                <strong>Status:</strong> {b.status}
-              </p>
-            </div>
-            {b.status === "pending" && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleStatusChange(b._id, "approved")}
-                  className="bg-green-600 text-white px-3 py-1 rounded"
+        <div className="grid gap-4">
+          {bookings.map((b) => (
+            <div
+              key={b._id}
+              className="bg-white rounded-xl shadow-md p-5 flex flex-col md:flex-row justify-between items-start md:items-center transition hover:shadow-lg"
+            >
+              {/* Booking Info */}
+              <div className="flex-1 mb-4 md:mb-0">
+                <p className="text-gray-800 font-semibold text-lg">
+                  {b.customerId?.name}{" "}
+                  <span className="text-gray-400 text-sm">({b.customerId?.email})</span>
+                </p>
+                <p className="text-gray-600 mt-1">
+                  <strong>Date:</strong> {b.date}
+                </p>
+                <p className="text-gray-600 mt-1">
+                  <strong>Time:</strong> {b.time}
+                </p>
+                {/* Status Badge */}
+                <span
+                  className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${statusColors[b.status]}`}
                 >
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleStatusChange(b._id, "rejected")}
-                  className="bg-red-600 text-white px-3 py-1 rounded"
-                >
-                  Reject
-                </button>
+                  {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+                </span>
               </div>
-            )}
-          </div>
-        ))
+
+              {/* Action Buttons */}
+              {b.status === "pending" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleStatusChange(b._id, "approved")}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition font-medium"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(b._id, "rejected")}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition font-medium"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
