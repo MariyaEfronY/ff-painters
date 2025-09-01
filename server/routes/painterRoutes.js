@@ -14,7 +14,8 @@ import {
   createBooking,
   getUserBookings,
   updateBookingStatus,
-  painterLogout
+  painterLogout,
+  searchPainters
 } from "../controllers/painterController.js";
 
 import { painterProtect } from "../middleware/auth.js";
@@ -58,7 +59,7 @@ router.delete(
 
 // 🔹 Public
 router.get("/main", getAllPainters);  
-router.get("/", getAllPainters); 
+router.get("/search", searchPainters);
 router.get("/:id", getPainterById);
 router.get("/:id/gallery", getPainterGallery);
 router.post("/:id/book", createBooking);

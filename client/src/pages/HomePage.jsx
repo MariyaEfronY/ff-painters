@@ -8,7 +8,10 @@ import heroAnimation from "../assets/hero-painter.json";
 
 const HomePage = () => {
   const [painters, setPainters] = useState([]);
+  const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -35,6 +38,24 @@ const HomePage = () => {
     };
     fetchPainters();
   }, []);
+
+// ✅ Search handler
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(
+        `http://localhost:5000/api/painters/search?phone=${phone}&city=${city}`
+      );
+      setSearchResults(data);
+    } catch (err) {
+      console.error("Search failed:", err);
+      setSearchResults([]);
+    }
+    setLoading(false);
+  };
+
+
+
 
   const colors = {
     primary: "#ec4899",
@@ -205,10 +226,6 @@ const HomePage = () => {
     `}
   </style>
 </nav>
-
-
-      {/* ✅ The rest of your existing page code (Hero, Search, Featured, How It Works, Footer) remains unchanged */}
-      {/* I didn’t remove anything below, only changed the nav */}
       
       {/* Hero Section */}
       <section
@@ -294,145 +311,154 @@ const HomePage = () => {
 
 
       {/* Search Section */}
-<section
-  ref={searchRef}
-  style={{
-    padding: "2.5rem 2rem",
-    backgroundColor: colors.cardBg,
-    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-  }}
->
-  <div
-    style={{
-      maxWidth: "1024px",
-      margin: "0 auto",
-      display: "flex",
-      flexWrap: "wrap",
-      gap: "1rem",
-    }}
-  >
-    {/* Search by Phone */}
-    <input
-      type="text"
-      placeholder="Enter phone number..."
-      style={{
-        flex: 1,
-        padding: "0.75rem",
-        borderRadius: "0.5rem",
-        border: "1px solid #d1d5db",
-        outline: "none",
-        color: colors.textDark,
-      }}
-    />
-
-    {/* Search by City */}
-    <input
-      type="text"
-      placeholder="Enter city..."
-      style={{
-        flex: 1,
-        padding: "0.75rem",
-        borderRadius: "0.5rem",
-        border: "1px solid #d1d5db",
-        outline: "none",
-        color: colors.textDark,
-      }}
-    />
-
-    {/* Search Button */}
-    <button
-  style={{
-    backgroundColor: colors.primary,
-    color: "#fff",
-    padding: "0.75rem 1.5rem",
-    borderRadius: "0.5rem",
-    cursor: "pointer",
-  }}
-  onClick={async () => {
-  const phone = document.querySelector("input[placeholder='Enter phone number...']").value;
-  const city = document.querySelector("input[placeholder='Enter city...']").value;
-
-  try {
-    const { data } = await axios.get(
-      `http://localhost:5000/api/painters?phone=${phone}&city=${city}`
-    );
-    setSearchResults(data);
-  } catch (err) {
-    console.error("Search failed:", err);
-    setSearchResults([]);
-  }
-}}
-
->
-  Search
-</button>
-
-  </div>
-</section>
-
-{/* Search Results Section */}
-{searchResults.length > 0 && (
-  <section style={{ padding: "3rem 2rem", backgroundColor: colors.background }}>
-    <h2 style={{ textAlign: "center", fontSize: "1.5rem", fontWeight: "bold", marginBottom: "2rem" }}>
-      🔍 Search Results
-    </h2>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
-      {searchResults.map((p) => (
-        <motion.div
-          key={p._id}
-          whileHover={{ scale: 1.05 }}
+      <section
+        style={{
+          padding: "2.5rem 2rem",
+          backgroundColor: colors.cardBg,
+          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+        }}
+      >
+        <div
           style={{
-            backgroundColor: colors.cardBg,
-            borderRadius: "1rem",
-            padding: "1.5rem",
-            textAlign: "center",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            maxWidth: "1024px",
+            margin: "0 auto",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "1rem",
           }}
         >
-          <img
-            src={`http://localhost:5000/uploads/profileImages/${p.profileImage}`}
-            alt={p.name}
+          {/* Search by Phone */}
+          <input
+            type="text"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Enter phone number..."
             style={{
-              width: "6rem",
-              height: "6rem",
-              borderRadius: "50%",
-              margin: "0 auto 1rem",
-              objectFit: "cover",
+              flex: 1,
+              padding: "0.75rem",
+              borderRadius: "0.5rem",
+              border: "1px solid #d1d5db",
+              outline: "none",
+              color: colors.textDark,
             }}
           />
-          <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
-          <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
-          <p
+
+          {/* Search by City */}
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="Enter city..."
             style={{
-              fontSize: "0.75rem",
-              marginTop: "0.5rem",
-              color: colors.textMuted,
-              overflow: "hidden",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
+              flex: 1,
+              padding: "0.75rem",
+              borderRadius: "0.5rem",
+              border: "1px solid #d1d5db",
+              outline: "none",
+              color: colors.textDark,
             }}
-          >
-            {p.bio}
-          </p>
+          />
+
+          {/* Search Button */}
           <button
-            onClick={() => navigate(`/painters/${p._id}`)}
             style={{
-              marginTop: "1rem",
-              backgroundColor: colors.secondary,
+              backgroundColor: colors.primary,
               color: "#fff",
-              padding: "0.5rem 1rem",
+              padding: "0.75rem 1.5rem",
               borderRadius: "0.5rem",
               cursor: "pointer",
             }}
+            onClick={handleSearch}
           >
-            View Profile
+            {loading ? "Searching..." : "Search"}
           </button>
-        </motion.div>
-      ))}
-    </div>
-  </section>
-)}
+        </div>
+      </section>
+
+      {/* Search Results Section */}
+      {searchResults.length > 0 && (
+        <section style={{ padding: "3rem 2rem", backgroundColor: colors.background }}>
+          <h2
+            style={{
+              textAlign: "center",
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              marginBottom: "2rem",
+            }}
+          >
+            🔍 Search Results
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "2rem",
+            }}
+          >
+            {searchResults.map((p) => (
+              <motion.div
+                key={p._id}
+                whileHover={{ scale: 1.05 }}
+                style={{
+                  backgroundColor: colors.cardBg,
+                  borderRadius: "1rem",
+                  padding: "1.5rem",
+                  textAlign: "center",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                }}
+              >
+                <img
+                  src={
+                    p.profileImage
+                      ? `http://localhost:5000/uploads/profileImages/${p.profileImage}`
+                      : "https://via.placeholder.com/150"
+                  }
+                  alt={p.name}
+                  style={{
+                    width: "6rem",
+                    height: "6rem",
+                    borderRadius: "50%",
+                    margin: "0 auto 1rem",
+                    objectFit: "cover",
+                  }}
+                />
+                <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
+                <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    marginTop: "0.5rem",
+                    color: colors.textMuted,
+                  }}
+                >
+                  {p.bio || "No bio available"}
+                </p>
+                <button
+                  onClick={() => navigate(`/painters/${p._id}`)}
+                  style={{
+                    marginTop: "1rem",
+                    backgroundColor: colors.secondary,
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "0.5rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  View Profile
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* No Results Message */}
+      {searchResults.length === 0 && phone && city && !loading && (
+        <p style={{ textAlign: "center", marginTop: "2rem" }}>No painters found.</p>
+      )}
+
+
 
 
 

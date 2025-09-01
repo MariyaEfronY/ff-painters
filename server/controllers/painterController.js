@@ -249,24 +249,24 @@ export const deleteGalleryImage = async (req, res) => {
 
 // ✅ Public: fetch painters for main page
 
-// controllers/painterController.js
 export const getAllPainters = async (req, res) => {
   try {
-    const { phone, city, name } = req.query; // grab query params
+    const { phone, city, name } = req.query;
     const query = {};
 
-    if (phone) query.phone = phone;
-    if (city) query.city = { $regex: city, $options: "i" }; // case-insensitive
+    // ✅ use phoneNumber field in DB but keep req.query.phone
+    if (phone) query.phoneNumber = { $regex: phone, $options: "i" };
+    if (city) query.city = { $regex: city, $options: "i" };
     if (name) query.name = { $regex: name, $options: "i" };
 
     const painters = await Painter.find(query).select("-password");
 
-    // Build gallery previews
     const result = painters.map((p) => ({
       _id: p._id,
       name: p.name,
       bio: p.bio,
       city: p.city,
+      phoneNumber: p.phoneNumber,
       profileImage: p.profileImage,
       galleryPreview: p.gallery.slice(0, 2),
     }));
@@ -277,7 +277,6 @@ export const getAllPainters = async (req, res) => {
     res.status(500).json({ message: "Server error: " + err.message });
   }
 };
-
 
 // Get full painter details (profile + gallery)
 export const getPainterById = async (req, res) => {
@@ -384,3 +383,33 @@ export const painterLogout = async (req, res) => {
   }
 };
 
+// ✅ Search painters by phone, city, or name
+export const searchPainters = async (req, res) => {
+  try {
+    const { phone, city, name } = req.query;
+
+    const query = {};
+
+    if (phone) query.phoneNumber = { $regex: phone, $options: "i" };
+    if (city) query.city = { $regex: city, $options: "i" };
+    if (name) query.name = { $regex: name, $options: "i" };
+
+    const painters = await Painter.find(query).select("-password");
+
+    // Send a limited preview
+    const result = painters.map((p) => ({
+      _id: p._id,
+      name: p.name,
+      bio: p.bio,
+      city: p.city,
+      phoneNumber: p.phoneNumber,
+      profileImage: p.profileImage,
+      galleryPreview: p.gallery.slice(0, 2),
+    }));
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Search Painters Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
