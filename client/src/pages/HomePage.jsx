@@ -9,6 +9,7 @@ import heroAnimation from "../assets/hero-painter.json";
 const HomePage = () => {
   const [painters, setPainters] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,6 +21,7 @@ const HomePage = () => {
 
   const scrollToSection = (ref) => {
     ref.current.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false); // close menu on mobile after click
   };
 
   useEffect(() => {
@@ -44,53 +46,197 @@ const HomePage = () => {
   };
 
   return (
-    <div style={{ backgroundColor: colors.background, color: colors.textDark, fontFamily: "'Poppins', sans-serif" }}>
+    <div
+      style={{
+        backgroundColor: colors.background,
+        color: colors.textDark,
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
       {/* Navigation */}
-      <nav style={{ position: "fixed", top: 0, width: "100%", backgroundColor: "#fff", zIndex: 50, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem" }}>
-          <h1 style={{ fontWeight: "bold", color: colors.primary, cursor: "pointer" }} onClick={() => scrollToSection(heroRef)}>PainterBooking</h1>
-          <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-            <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(heroRef)}>Home</span>
-            <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(searchRef)}>Search</span>
-            <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(featuredRef)}>Featured</span>
-            <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(howRef)}>How It Works</span>
-            <span style={{ cursor: "pointer" }} onClick={() => navigate("/contact")}>Contact</span>
-
-            <button onClick={() => navigate("/login-choice")} style={{ padding: "0.5rem 1rem", backgroundColor: colors.primary, color: "#fff", borderRadius: "0.5rem" }}>Login</button>
-            <button onClick={() => navigate("/signup-choice")} style={{ padding: "0.5rem 1rem", backgroundColor: colors.secondary, color: "#fff", borderRadius: "0.5rem" }}>Signup</button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      {/* Hero Section */}
-<section
-  ref={heroRef}
+      {/* Navigation */}
+<nav
   style={{
-    position: "relative",
-    width: "100vw",
-    height: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    backgroundColor: "#fff",
+    zIndex: 1000,
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   }}
 >
-  {/* Background Animation */}
-  <Lottie
-    animationData={heroAnimation}
-    loop={true}
+  <div
     style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      zIndex: 0,
-      opacity: 0.7,
+      maxWidth: "1200px",
+      margin: "0 auto",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "1rem",
     }}
-  />
+  >
+    <h1
+      style={{
+        fontWeight: "bold",
+        color: colors.primary,
+        cursor: "pointer",
+      }}
+      onClick={() => scrollToSection(heroRef)}
+    >
+      PainterBooking
+    </h1>
+
+    {/* Desktop Menu */}
+    <div
+      className="nav-links"
+      style={{
+        display: "flex",
+        gap: "1.5rem",
+        alignItems: "center",
+      }}
+    >
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(heroRef)}>Home</span>
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(searchRef)}>Search</span>
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(featuredRef)}>Featured</span>
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(howRef)}>How It Works</span>
+      <span style={{ cursor: "pointer" }} onClick={() => navigate("/contact")}>Contact</span>
+
+      <button
+        onClick={() => navigate("/login-choice")}
+        style={{
+          padding: "0.5rem 1rem",
+          backgroundColor: colors.primary,
+          color: "#fff",
+          borderRadius: "0.5rem",
+        }}
+      >
+        Login
+      </button>
+      <button
+        onClick={() => navigate("/signup-choice")}
+        style={{
+          padding: "0.5rem 1rem",
+          backgroundColor: colors.secondary,
+          color: "#fff",
+          borderRadius: "0.5rem",
+        }}
+      >
+        Signup
+      </button>
+    </div>
+
+    {/* Hamburger (visible on mobile) */}
+    <button
+      className="hamburger"
+      style={{
+        display: "none",
+        fontSize: "1.5rem",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+      }}
+      onClick={() => setMenuOpen(!menuOpen)}
+    >
+      ☰
+    </button>
+  </div>
+
+  {/* ✅ Mobile Menu (absolute overlay, no unwanted space) */}
+  {menuOpen && (
+    <div
+      className="mobile-menu"
+      style={{
+        position: "absolute",
+        top: "100%",
+        left: 0,
+        width: "100%",
+        backgroundColor: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        padding: "1rem",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      }}
+    >
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(heroRef)}>Home</span>
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(searchRef)}>Search</span>
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(featuredRef)}>Featured</span>
+      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(howRef)}>How It Works</span>
+      <span style={{ cursor: "pointer" }} onClick={() => navigate("/contact")}>Contact</span>
+
+      <button
+        onClick={() => navigate("/login-choice")}
+        style={{
+          marginTop: "1rem",
+          padding: "0.5rem 1rem",
+          backgroundColor: colors.primary,
+          color: "#fff",
+          borderRadius: "0.5rem",
+        }}
+      >
+        Login
+      </button>
+      <button
+        onClick={() => navigate("/signup-choice")}
+        style={{
+          marginTop: "0.5rem",
+          padding: "0.5rem 1rem",
+          backgroundColor: colors.secondary,
+          color: "#fff",
+          borderRadius: "0.5rem",
+        }}
+      >
+        Signup
+      </button>
+    </div>
+  )}
+
+  {/* Inline CSS for responsiveness */}
+  <style>
+    {`
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none !important;
+        }
+        .hamburger {
+          display: block !important;
+        }
+      }
+    `}
+  </style>
+</nav>
+
+
+      {/* ✅ The rest of your existing page code (Hero, Search, Featured, How It Works, Footer) remains unchanged */}
+      {/* I didn’t remove anything below, only changed the nav */}
+      
+      {/* Hero Section */}
+      <section
+        ref={heroRef}
+        style={{
+          position: "relative",
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+        }}
+      >
+        <Lottie
+          animationData={heroAnimation}
+          loop={true}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+            opacity: 0.7,
+          }}
+        />
 
   {/* Foreground Content */}
   <motion.div
