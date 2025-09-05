@@ -131,7 +131,7 @@ const UserDashboard = () => {
           {user.profileImage && (
   <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
     <img
-      src={`${user.profileImage}?v=${cacheBust}`}
+      src={user.profileImage} // ✅ direct Cloudinary URL
       alt="Profile"
       width={140}
       height={140}
@@ -143,6 +143,7 @@ const UserDashboard = () => {
     />
   </div>
 )}
+
 
 
           <h2 style={{ fontSize: "1.8rem", fontWeight: "bold", marginBottom: "1rem" }}>👋 Welcome, {user.name}</h2>

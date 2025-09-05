@@ -13,7 +13,7 @@ const GalleryPage = () => {
   const fetchGallery = async () => {
     try {
       const token = localStorage.getItem("painterToken");
-      const { data } = await axios.get("http://localhost:5000/api/painter/gallery", {
+      const { data } = await axios.get("https://painter-backend-inky.vercel.app/api/painter/gallery", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGallery(data.gallery || []);
@@ -30,7 +30,7 @@ const GalleryPage = () => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("painterToken");
-      await axios.delete(`http://localhost:5000/api/painter/gallery/${id}`, {
+      await axios.delete(`https://painter-backend-inky.vercel.app/api/painter/gallery/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGallery(gallery.filter((img) => img._id !== id));
@@ -50,7 +50,7 @@ const GalleryPage = () => {
     try {
       const token = localStorage.getItem("painterToken");
       await axios.put(
-        `http://localhost:5000/api/painter/gallery/${id}`,
+        `https://painter-backend-inky.vercel.app/api/painter/gallery/${id}`,
         { description: newDesc },
         { headers: { Authorization: `Bearer ${token}` } }
       );

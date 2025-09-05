@@ -41,7 +41,7 @@ const BookingPage = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/bookings",
+        "https://painter-backend-inky.vercel.app/api/bookings",
         { painterId, date, time },
         { headers: { Authorization: `Bearer ${token}` } }
       );

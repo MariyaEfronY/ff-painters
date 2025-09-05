@@ -18,7 +18,7 @@ const PainterDetails = () => {
   useEffect(() => {
     const fetchPainter = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/painter/${id}`);
+        const res = await axios.get(`https://painter-backend-inky.vercel.app/api/painter/${id}`);
         setPainter(res.data);
       } catch (err) {
         console.error("❌ Failed to load painter:", err.message);
@@ -44,7 +44,7 @@ const PainterDetails = () => {
     <div style={{ padding: "1.5rem", maxWidth: "768px", margin: "0 auto", backgroundColor: colors.background, color: colors.textDark }}>
       <div style={{ textAlign: "center" }}>
         <img
-          src={`http://localhost:5000/uploads/profileImages/${painter.profileImage}`}
+          src={`https://painter-backend-inky.vercel.app/uploads/profileImages/${painter.profileImage}`}
           alt={painter.name}
           style={{ width: "180px", height: "180px", borderRadius: "50%", margin: "0 auto", border: "4px solid #ddd", objectFit: "cover", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}
         />
