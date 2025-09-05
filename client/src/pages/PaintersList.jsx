@@ -9,7 +9,7 @@ const PaintersList = () => {
   useEffect(() => {
     const fetchPainters = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/painter/main");
+        const res = await axios.get("https://painter-backend.netlify.app/api/painter/main");
         setPainters(res.data);
       } catch (err) {
         console.error("❌ Failed to load painters:", err.message);
@@ -23,7 +23,7 @@ const PaintersList = () => {
       {painters.map((p) => (
         <div key={p._id} className="shadow-lg rounded-xl p-4 bg-white text-center">
           <img
-            src={`http://localhost:5000/uploads/profileImages/${p.profileImage}`}
+            src={`https://painter-backend.netlify.app/uploads/profileImages/${p.profileImage}`}
             alt={p.name}
             className="rounded-full object-cover mx-auto border-4 border-gray-200 shadow-md"
             style={{ width: "160px", height: "160px", maxWidth: "200px", maxHeight: "200px" }}

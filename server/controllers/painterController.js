@@ -385,31 +385,19 @@ export const painterLogout = async (req, res) => {
 
 // ✅ Search painters by phone, city, or name
 export const searchPainters = async (req, res) => {
-  try {
-    const { phone, city, name } = req.query;
+  const { phone, city } = req.query;
 
+  try {
     const query = {};
 
-    if (phone) query.phoneNumber = { $regex: phone, $options: "i" };
-    if (city) query.city = { $regex: city, $options: "i" };
-    if (name) query.name = { $regex: name, $options: "i" };
+    if (phone) query.phoneNumber = phone; // ✅ matches your schema
+    if (city) query.city = { $regex: city, $options: "i" }; // case-insensitive search
 
-    const painters = await Painter.find(query).select("-password");
+    const painters = await Painter.find(query);
 
-    // Send a limited preview
-    const result = painters.map((p) => ({
-      _id: p._id,
-      name: p.name,
-      bio: p.bio,
-      city: p.city,
-      phoneNumber: p.phoneNumber,
-      profileImage: p.profileImage,
-      galleryPreview: p.gallery.slice(0, 2),
-    }));
-
-    res.status(200).json(result);
+    res.json(painters);
   } catch (err) {
-    console.error("Search Painters Error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };

@@ -34,7 +34,7 @@ const UploadGallery = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/painter/gallery",
+        "https://painter-backend.netlify.app/api/painter/gallery",
         formData,
         {
           headers: {

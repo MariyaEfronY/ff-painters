@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/admin", // ✅ adjust if your backend URL is different
+  baseURL: "https://painter-backend.netlify.app/api/admin", // ✅ adjust if your backend URL is different
 });
 
 // ✅ Admin Signup

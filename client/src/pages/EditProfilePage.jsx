@@ -9,7 +9,7 @@ const EditProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/painter/profile", {
+        const res = await fetch("https://painter-backend.netlify.app/api/painter/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -35,7 +35,7 @@ const EditProfilePage = () => {
         <div className="bg-gray-100 rounded-lg p-4 mb-6 flex items-center gap-4">
           {profile.profileImage ? (
             <img
-              src={`http://localhost:5000/uploads/profileImages/${profile.profileImage}`}
+              src={`https://painter-backend.netlify.app/uploads/profileImages/${profile.profileImage}`}
               alt="Profile"
               className="w-20 h-20 rounded-full border-2 border-gray-300 object-cover"
             />

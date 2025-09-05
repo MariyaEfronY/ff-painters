@@ -21,7 +21,12 @@ import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "https://painter-frontend-psi.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // ✅ __dirname fix
@@ -44,6 +49,13 @@ const createUploadDirs = () => {
   });
 };
 createUploadDirs();
+
+app.get("/", (req, res) => {
+  res.json({ message: "✅ Painter Backend is working!" });
+});
+app.get("/api/test", (req, res) => {
+  res.json({ success: true, message: "API route working correctly 🚀" });
+});
 
 // ✅ Serve static image files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -82,7 +94,9 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 // ✅ Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server running at http://localhost:${PORT}`);
+// });
+
+export default app;

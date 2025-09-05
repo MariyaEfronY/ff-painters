@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Search, Calendar, Paintbrush, Home } from "lucide-react";
 import Lottie from "lottie-react";
 import axios from "axios";
+import API from "../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import heroAnimation from "../assets/hero-painter.json";
 
@@ -30,7 +31,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPainters = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/painter/main");
+        const res = await axios.get("https://painter-backend.netlify.app/api/painter/main");
         setPainters(res.data);
       } catch (err) {
         console.error("❌ Failed to load painters:", err.message);
@@ -39,20 +40,27 @@ const HomePage = () => {
     fetchPainters();
   }, []);
 
-// ✅ Search handler
-  const handleSearch = async () => {
+const handleSearch = async () => {
+  if (!phone && !city) return; // prevent empty search
+
+  try {
     setLoading(true);
-    try {
-      const { data } = await axios.get(
-        `http://localhost:5000/api/painters/search?phone=${phone}&city=${city}`
-      );
-      setSearchResults(data);
-    } catch (err) {
-      console.error("Search failed:", err);
-      setSearchResults([]);
-    }
+    setSearchResults([]); // clear previous results
+
+    const params = {};
+    if (phone) params.phoneNumber = phone; // matches schema
+    if (city) params.city = city;
+
+    const { data } = await API.get("/painters/search", { params });
+
+    setSearchResults(data); // data will be [] if no results
+  } catch (err) {
+    console.error("Search failed:", err);
+    setSearchResults([]);
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
 
 
@@ -360,18 +368,19 @@ const HomePage = () => {
           />
 
           {/* Search Button */}
-          <button
-            style={{
-              backgroundColor: colors.primary,
-              color: "#fff",
-              padding: "0.75rem 1.5rem",
-              borderRadius: "0.5rem",
-              cursor: "pointer",
-            }}
-            onClick={handleSearch}
-          >
-            {loading ? "Searching..." : "Search"}
-          </button>
+<button
+  style={{
+    backgroundColor: colors.primary,
+    color: "#fff",
+    padding: "0.75rem 1.5rem",
+    borderRadius: "0.5rem",
+    cursor: "pointer",
+  }}
+  onClick={handleSearch}
+>
+  {loading ? "Searching..." : "Search"}
+</button>
+
         </div>
       </section>
 
@@ -411,7 +420,7 @@ const HomePage = () => {
                 <img
                   src={
                     p.profileImage
-                      ? `http://localhost:5000/uploads/profileImages/${p.profileImage}`
+                      ? `https://painter-backend.netlify.app/uploads/profileImages/${p.profileImage}`
                       : "https://via.placeholder.com/150"
                   }
                   alt={p.name}
@@ -454,9 +463,10 @@ const HomePage = () => {
       )}
 
       {/* No Results Message */}
-      {searchResults.length === 0 && phone && city && !loading && (
-        <p style={{ textAlign: "center", marginTop: "2rem" }}>No painters found.</p>
-      )}
+      {searchResults.length === 0 && (phone || city) && !loading && (
+  <p style={{ textAlign: "center", marginTop: "2rem" }}>No painters found.</p>
+)}
+
 
 
 
@@ -468,7 +478,7 @@ const HomePage = () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
           {painters.length > 0 ? painters.map((p) => (
             <motion.div key={p._id} whileHover={{ scale: 1.05 }} style={{ backgroundColor: colors.cardBg, borderRadius: "1rem", padding: "1.5rem", textAlign: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-              <img src={`http://localhost:5000/uploads/profileImages/${p.profileImage}`} alt={p.name} style={{ width: "6rem", height: "6rem", borderRadius: "50%", margin: "0 auto 1rem", objectFit: "cover" }} />
+              <img src={`https://painter-backend.netlify.app/uploads/profileImages/${p.profileImage}`} alt={p.name} style={{ width: "6rem", height: "6rem", borderRadius: "50%", margin: "0 auto 1rem", objectFit: "cover" }} />
               <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
               <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
               <p style={{ fontSize: "0.75rem", marginTop: "0.5rem", color: colors.textMuted, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{p.bio}</p>
@@ -548,7 +558,7 @@ const HomePage = () => {
           e.preventDefault();
           const email = e.target.email.value;
           try {
-            await axios.post("http://localhost:5000/api/subscribe", { email });
+            await axios.post("https://painter-backend.netlify.app/api/subscribe", { email });
             alert("✅ Subscribed successfully!");
             e.target.reset();
           } catch (err) {

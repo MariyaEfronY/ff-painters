@@ -13,7 +13,7 @@ const GalleryPage = () => {
   const fetchGallery = async () => {
     try {
       const token = localStorage.getItem("painterToken");
-      const { data } = await axios.get("http://localhost:5000/api/painter/gallery", {
+      const { data } = await axios.get("https://painter-backend.netlify.app/api/painter/gallery", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGallery(data.gallery || []);
@@ -30,7 +30,7 @@ const GalleryPage = () => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("painterToken");
-      await axios.delete(`http://localhost:5000/api/painter/gallery/${id}`, {
+      await axios.delete(`https://painter-backend.netlify.app/api/painter/gallery/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGallery(gallery.filter((img) => img._id !== id));
@@ -50,7 +50,7 @@ const GalleryPage = () => {
     try {
       const token = localStorage.getItem("painterToken");
       await axios.put(
-        `http://localhost:5000/api/painter/gallery/${id}`,
+        `https://painter-backend.netlify.app/api/painter/gallery/${id}`,
         { description: newDesc },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -89,7 +89,7 @@ const GalleryPage = () => {
               className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition flex flex-col"
             >
               <img
-                src={`http://localhost:5000${item.image}`}
+                src={`https://painter-backend.netlify.app${item.image}`}
                 alt="Gallery"
                 className="w-full h-48 object-cover"
               />

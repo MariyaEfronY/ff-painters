@@ -3,7 +3,7 @@ import axios from "axios";
 
 // ✅ Point directly to /api/users since all user routes are mounted there
 const userAPI = axios.create({
-  baseURL: "http://localhost:5000/api/users",
+  baseURL: "https://painter-backend.netlify.app/api/users",
 });
 
 // ✅ Attach user token from localStorage to every request if available

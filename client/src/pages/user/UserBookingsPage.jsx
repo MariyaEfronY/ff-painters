@@ -10,7 +10,7 @@ const UserBookingsPage = () => {
       if (!token) return;
 
       try {
-        const res = await axios.get("http://localhost:5000/api/bookings/my-bookings", {
+        const res = await axios.get("https://painter-backend.netlify.app/api/bookings/my-bookings", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBookings(res.data);

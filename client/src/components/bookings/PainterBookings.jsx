@@ -5,7 +5,7 @@ const PainterBookings = ({ painterId }) => {
   const [bookings, setBookings] = useState([]);
 
   const fetchBookings = async () => {
-    const res = await axios.get(`http://localhost:5000/api/bookings/painter/${painterId}`);
+    const res = await axios.get(`https://painter-backend.netlify.app/api/bookings/painter/${painterId}`);
     setBookings(res.data);
   };
 
@@ -14,7 +14,7 @@ const PainterBookings = ({ painterId }) => {
   }, [painterId]);
 
   const updateStatus = async (id, status) => {
-    await axios.put(`http://localhost:5000/api/bookings/${id}/status`, { status });
+    await axios.put(`https://painter-backend.netlify.app/api/bookings/${id}/status`, { status });
     fetchBookings();
   };
 
