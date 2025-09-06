@@ -43,9 +43,11 @@ const PainterDashboard = () => {
     if (path === "/logout") {
       const token = localStorage.getItem("painterToken");
       if (token) {
-        axios.post("https://painter-backend-inky.vercel.app/api/painter/logout", {}, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch((err) => console.error("Logout error:", err.message));
+        axios
+          .post("https://painter-backend-inky.vercel.app/api/painter/logout", {}, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .catch((err) => console.error("Logout error:", err.message));
       }
       localStorage.removeItem("painterToken");
       navigate("/");
@@ -56,10 +58,6 @@ const PainterDashboard = () => {
 
   if (loading) return <p>Loading profile...</p>;
   if (!profile) return <p>Unable to load profile.</p>;
-
-  const profileImageUrl = profile?.profileImage
-    ? `https://painter-backend-inky.vercel.app/uploads/profileImages/${profile.profileImage}`
-    : null;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -86,17 +84,19 @@ const PainterDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome, {profile.name}!</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          Welcome, {profile.name}!
+        </h1>
 
         {/* Profile Card */}
         <div className="bg-white shadow-md rounded-xl p-6 flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Profile Image */}
-          {profileImageUrl ? (
-           <img
-  src={painter.profileImage || "/default-avatar.png"}
-  alt="Profile"
-  className="w-24 h-24 rounded-full object-cover"
-/>
+          {profile.profileImage ? (
+            <img
+              src={profile.profileImage} // ✅ Cloudinary secure_url directly
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover border-2 border-gray-200"
+            />
           ) : (
             <div className="w-32 h-32 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400">
               No Image
