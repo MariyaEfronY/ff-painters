@@ -33,13 +33,14 @@ const Signup = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      Object.keys(form).forEach((key) => {
-        if (key === "specification") {
-          form.specification.forEach((s) => formData.append("specification", s));
-        } else {
-          formData.append(key, form[key]);
-        }
-      });
+      Object.entries(form).forEach(([key, value]) => {
+  if (Array.isArray(value)) {
+    value.forEach((v) => formData.append(key, v));
+  } else {
+    formData.append(key, value);
+  }
+});
+
       if (profileImage) formData.append("profileImage", profileImage);
 
       await axios.post("https://painter-backend-inky.vercel.app/api/painter/signup", formData, {
