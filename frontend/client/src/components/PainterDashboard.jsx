@@ -92,11 +92,11 @@ const PainterDashboard = () => {
         <div className="bg-white shadow-md rounded-xl p-6 flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Profile Image */}
           {profileImageUrl ? (
-            <img
-              src={profileImageUrl}
-              alt="Profile"
-              className="w-32 h-32 rounded-full border-2 border-gray-200 object-cover"
-            />
+           <img
+  src={painter.profileImage || "/default-avatar.png"}
+  alt="Profile"
+  className="w-24 h-24 rounded-full object-cover"
+/>
           ) : (
             <div className="w-32 h-32 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400">
               No Image
