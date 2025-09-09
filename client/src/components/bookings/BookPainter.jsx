@@ -11,7 +11,7 @@ const BookPainter = ({ customerId, painterId }) => {
       return;
     }
     try {
-      const res = await axios.post("https://painter-backend.netlify.app/api/bookings", {
+      const res = await axios.post("https://painter-backend-inky.vercel.app/api/bookings", {
         customerId,
         painterId,
         date,

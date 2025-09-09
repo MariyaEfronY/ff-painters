@@ -1,15 +1,14 @@
 // utils/userApi.js
 import axios from "axios";
 
-// ✅ Point directly to /api/users since all user routes are mounted there
+// ✅ Point to your Vercel backend, not Netlify
 const userAPI = axios.create({
-  baseURL: "https://painter-backend.netlify.app/api/users",
+  baseURL: "https://painter-backend-inky.vercel.app/api/users",
 });
 
-// ✅ Attach user token from localStorage to every request if available
 userAPI.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("userToken"); // store token under "userToken"
+    const token = localStorage.getItem("userToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

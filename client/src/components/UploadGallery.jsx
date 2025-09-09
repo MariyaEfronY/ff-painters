@@ -34,7 +34,7 @@ const UploadGallery = () => {
       }
 
       const res = await axios.post(
-        "https://painter-backend.netlify.app/api/painter/gallery",
+        "https://painter-backend-inky.vercel.app/api/painter/gallery",
         formData,
         {
           headers: {

@@ -53,7 +53,7 @@ const PainterEditForm = ({ painterId, initialData = {}, onProfileUpdated }) => {
       if (profileImage) data.append("profileImage", profileImage);
 
       await axios.put(
-        `https://painter-backend.netlify.app/api/painter/profile/${painterId}`,
+        `https://painter-backend-inky.vercel.app/api/painter/profile/${painterId}`,
         data,
         {
           headers: {

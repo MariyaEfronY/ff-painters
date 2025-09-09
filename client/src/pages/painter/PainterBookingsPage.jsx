@@ -20,7 +20,7 @@ const PainterBookingsPage = () => {
       if (!token) return;
 
       const res = await axios.get(
-        "https://painter-backend.netlify.app/api/bookings/painter/bookings",
+        "https://painter-backend-inky.vercel.app/api/bookings/painter/bookings",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -35,7 +35,7 @@ const PainterBookingsPage = () => {
     try {
       const token = localStorage.getItem("painterToken");
       await axios.put(
-        `https://painter-backend.netlify.app/api/bookings/${bookingId}/status`,
+        `https://painter-backend-inky.vercel.app/api/bookings/${bookingId}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );

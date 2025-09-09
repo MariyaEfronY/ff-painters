@@ -31,7 +31,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPainters = async () => {
       try {
-        const res = await axios.get("https://painter-backend.netlify.app/api/painter/main");
+        const res = await axios.get("https://painter-backend-inky.vercel.app/api/painter/main");
         setPainters(res.data);
       } catch (err) {
         console.error("❌ Failed to load painters:", err.message);
@@ -420,7 +420,7 @@ const handleSearch = async () => {
                 <img
                   src={
                     p.profileImage
-                      ? `https://painter-backend.netlify.app/uploads/profileImages/${p.profileImage}`
+                      ? `https://painter-backend-inky.vercel.app/uploads/profileImages/${p.profileImage}`
                       : "https://via.placeholder.com/150"
                   }
                   alt={p.name}
@@ -478,7 +478,7 @@ const handleSearch = async () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
           {painters.length > 0 ? painters.map((p) => (
             <motion.div key={p._id} whileHover={{ scale: 1.05 }} style={{ backgroundColor: colors.cardBg, borderRadius: "1rem", padding: "1.5rem", textAlign: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-              <img src={`https://painter-backend.netlify.app/uploads/profileImages/${p.profileImage}`} alt={p.name} style={{ width: "6rem", height: "6rem", borderRadius: "50%", margin: "0 auto 1rem", objectFit: "cover" }} />
+              <img src={`https://painter-backend-inky.vercel.app/uploads/profileImages/${p.profileImage}`} alt={p.name} style={{ width: "6rem", height: "6rem", borderRadius: "50%", margin: "0 auto 1rem", objectFit: "cover" }} />
               <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
               <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
               <p style={{ fontSize: "0.75rem", marginTop: "0.5rem", color: colors.textMuted, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{p.bio}</p>
@@ -558,7 +558,7 @@ const handleSearch = async () => {
           e.preventDefault();
           const email = e.target.email.value;
           try {
-            await axios.post("https://painter-backend.netlify.app/api/subscribe", { email });
+            await axios.post("https://painter-backend-inky.vercel.app/api/subscribe", { email });
             alert("✅ Subscribed successfully!");
             e.target.reset();
           } catch (err) {

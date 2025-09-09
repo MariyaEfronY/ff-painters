@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://painter-backend.netlify.app/api',
+  baseURL: "https://painter-backend-inky.vercel.app/api",
 });
 
 // ✅ Use the same key you used when storing the token

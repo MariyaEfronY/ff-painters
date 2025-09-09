@@ -42,7 +42,7 @@ const Signup = () => {
       });
       if (profileImage) formData.append("profileImage", profileImage);
 
-      await axios.post("https://painter-backend.netlify.app/api/painter/signup", formData, {
+      await axios.post("https://painter-backend-inky.vercel.app/api/painter/signup", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

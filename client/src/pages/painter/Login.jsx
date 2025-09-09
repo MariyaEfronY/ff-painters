@@ -14,7 +14,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("https://painter-backend.netlify.app/api/painter/login", form);
+      const response = await axios.post("https://painter-backend-inky.vercel.app/api/painter/login", form);
 
       localStorage.setItem("painterId", response.data.painter._id);
       localStorage.setItem("painterToken", response.data.token);

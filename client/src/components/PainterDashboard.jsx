@@ -21,7 +21,7 @@ const PainterDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem("painterToken");
       const response = await axios.get(
-        "https://painter-backend.netlify.app/api/painter/profile",
+        "https://painter-backend-inky.vercel.app/api/painter/profile",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setProfile(response.data);
@@ -43,7 +43,7 @@ const PainterDashboard = () => {
     if (path === "/logout") {
       const token = localStorage.getItem("painterToken");
       if (token) {
-        axios.post("https://painter-backend.netlify.app/api/painter/logout", {}, {
+        axios.post("https://painter-backend-inky.vercel.app/api/painter/logout", {}, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch((err) => console.error("Logout error:", err.message));
       }
@@ -57,9 +57,9 @@ const PainterDashboard = () => {
   if (loading) return <p>Loading profile...</p>;
   if (!profile) return <p>Unable to load profile.</p>;
 
-  const profileImageUrl = profile?.profileImage
-    ? `https://painter-backend.netlify.app/uploads/profileImages/${profile.profileImage}`
-    : null;
+const profileImageUrl = profile?.profileImage || null;
+
+
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -91,17 +91,19 @@ const PainterDashboard = () => {
         {/* Profile Card */}
         <div className="bg-white shadow-md rounded-xl p-6 flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Profile Image */}
-          {profileImageUrl ? (
-            <img
-              src={profileImageUrl}
-              alt="Profile"
-              className="w-32 h-32 rounded-full border-2 border-gray-200 object-cover"
-            />
-          ) : (
-            <div className="w-32 h-32 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400">
-              No Image
-            </div>
-          )}
+          
+{profileImageUrl ? (
+  <img
+  src={profileImageUrl}  // ✅ will now be Cloudinary URL
+  alt="Profile"
+  className="w-32 h-32 rounded-full border-2 border-gray-200 object-cover"
+/>
+) : (
+  <div className="w-32 h-32 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400">
+    No Image
+  </div>
+)}
+
 
           {/* Profile Info */}
           <div className="flex-1 space-y-2">

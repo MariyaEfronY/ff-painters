@@ -5,7 +5,7 @@ const MyBookings = ({ customerId }) => {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    axios.get(`https://painter-backend.netlify.app/api/bookings/customer/${customerId}`)
+    axios.get(`https://painter-backend-inky.vercel.app/api/bookings/customer/${customerId}`)
       .then(res => setBookings(res.data))
       .catch(err => console.error(err));
   }, [customerId]);

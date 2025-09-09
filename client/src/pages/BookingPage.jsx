@@ -41,7 +41,7 @@ const BookingPage = () => {
       }
 
       const res = await axios.post(
-        "https://painter-backend.netlify.app/api/bookings",
+        "https://painter-backend-inky.vercel.app/api/bookings",
         { painterId, date, time },
         { headers: { Authorization: `Bearer ${token}` } }
       );

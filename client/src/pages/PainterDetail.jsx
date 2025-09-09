@@ -18,7 +18,7 @@ const PainterDetails = () => {
   useEffect(() => {
     const fetchPainter = async () => {
       try {
-        const res = await axios.get(`https://painter-backend.netlify.app/api/painter/${id}`);
+        const res = await axios.get(`https://painter-backend-inky.vercel.app/api/painter/${id}`);
         setPainter(res.data);
       } catch (err) {
         console.error("❌ Failed to load painter:", err.message);
@@ -44,7 +44,7 @@ const PainterDetails = () => {
     <div style={{ padding: "1.5rem", maxWidth: "768px", margin: "0 auto", backgroundColor: colors.background, color: colors.textDark }}>
       <div style={{ textAlign: "center" }}>
         <img
-          src={`https://painter-backend.netlify.app/uploads/profileImages/${painter.profileImage}`}
+          src={`https://painter-backend-inky.vercel.app/uploads/profileImages/${painter.profileImage}`}
           alt={painter.name}
           style={{ width: "180px", height: "180px", borderRadius: "50%", margin: "0 auto", border: "4px solid #ddd", objectFit: "cover", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}
         />
@@ -59,7 +59,7 @@ const PainterDetails = () => {
           painter.gallery.map((img, index) => (
             <div key={index} style={{ backgroundColor: "#fff", padding: "0.5rem", borderRadius: "0.5rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
               <img
-                src={`https://painter-backend.netlify.app${img.image}`}
+                src={`https://painter-backend-inky.vercel.app${img.image}`}
                 alt={img.description || "Project image"}
                 style={{ width: "100%", borderRadius: "0.3rem" }}
               />
