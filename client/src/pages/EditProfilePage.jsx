@@ -35,7 +35,7 @@ const EditProfilePage = () => {
         <div className="bg-gray-100 rounded-lg p-4 mb-6 flex items-center gap-4">
           {profile.profileImage ? (
             <img
-              src={`https://painter-backend-inky.vercel.app/uploads/profileImages/${profile.profileImage}`}
+              src={profile.profileImage}
               alt="Profile"
               className="w-20 h-20 rounded-full border-2 border-gray-300 object-cover"
             />
