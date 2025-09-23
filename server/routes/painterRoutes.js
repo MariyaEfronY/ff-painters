@@ -71,6 +71,11 @@ router.get("/bookings/me", userProtect, getUserBookings);
 router.put("/bookings/:bookingId/status", painterProtect, updateBookingStatus);
 
 
+// routes/painterRoutes.js
+router.get("/search", searchPainters);
+
+
+
 
 router.post("/logout", painterLogout);
 

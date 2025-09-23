@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://painter-backend-inky.vercel.app/api", // ✅ adjust if your backend URL is different
+  baseURL: "https://painter-backend-inky.vercel.app/api/admin", // ✅ adjust if your backend URL is different
 });
 
 // ✅ Admin Signup

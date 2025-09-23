@@ -2,7 +2,7 @@ import Painter from '../models/Painter.js';
 import Booking from '../models/Booking.js';
 import bcrypt from 'bcryptjs';
 import createToken from '../utils/createToken.js';
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -12,16 +12,15 @@ import { fileURLToPath } from "url";
 // ✅ Define __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 // 🎯 Painter Signup
 export const painterSignup = async (req, res) => {
   try {
     const { name, email, password, phoneNumber, city, workExperience, bio, specification } = req.body;
 
-    // check existing
+    // check existing by email
     const existingPainter = await Painter.findOne({ email });
     if (existingPainter) {
-      return res.status(400).json({ message: 'Painter already exists' });
+      return res.status(400).json({ message: "Painter already exists" });
     }
 
     // hash password
@@ -29,10 +28,7 @@ export const painterSignup = async (req, res) => {
 
     let profileImage = "";
     if (req.file) {
-      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "painters/profileImages",
-      });
-      profileImage = cloudinaryResult.secure_url; // ✅ Cloudinary full URL
+      profileImage = req.file.path; // cloudinary or local URL
     }
 
     const painter = await Painter.create({
@@ -48,22 +44,23 @@ export const painterSignup = async (req, res) => {
         : specification
         ? [specification]
         : [],
-      profileImage, // ✅ Now a Cloudinary URL
+      profileImage,
     });
 
     const token = createToken(painter._id);
 
     res.status(201).json({
-      message: 'Painter registered successfully',
+      message: "Painter registered successfully",
       token,
       painterId: painter._id,
       painter,
     });
   } catch (error) {
-    console.error("🔥 Signup Error Details:", error);
+    console.error("🔥 Signup Error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 
 /* ---------- LOGIN ---------- */
@@ -112,10 +109,7 @@ export const updatePainterProfile = async (req, res) => {
     const updates = { ...req.body };
 
     if (req.file) {
-      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "painters/profileImages",
-      });
-      updates.profileImage = cloudinaryResult.secure_url; // ✅ store Cloudinary URL
+      updates.profileImage = req.file.path; // ✅ already Cloudinary URL
     }
 
     const painter = await Painter.findByIdAndUpdate(req.params.id, updates, {
@@ -136,17 +130,22 @@ export const updatePainterProfile = async (req, res) => {
 
 
 
-// Add image to gallery
+
+// ✅ Add gallery image (Cloudinary)
 export const addGalleryImage = async (req, res) => {
   try {
-    const painterId = req.painter._id; // ✅ FIXED: use req.painter from middleware
+    const painterId = req.painter._id; // comes from auth middleware
     const { description } = req.body;
 
     const painter = await Painter.findById(painterId);
     if (!painter) return res.status(404).json({ message: "Painter not found" });
 
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ message: "No image uploaded" });
+    }
+
     const newImage = {
-      image: `/uploads/galleryImages/${req.file.filename}`, // ✅ saved path
+      image: req.file.path, // ✅ Cloudinary URL directly
       description,
     };
 
@@ -163,14 +162,11 @@ export const addGalleryImage = async (req, res) => {
   }
 };
 
-
 // ✅ Fetch Painter's Gallery
 export const getGallery = async (req, res) => {
   try {
     const painter = await Painter.findById(req.painter._id).select("gallery");
-    if (!painter) {
-      return res.status(404).json({ message: "Painter not found" });
-    }
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
 
     res.status(200).json({ gallery: painter.gallery });
   } catch (err) {
@@ -178,8 +174,7 @@ export const getGallery = async (req, res) => {
   }
 };
 
-
-// ✅ Edit gallery image description
+// ✅ Update gallery description
 export const updateGallery = async (req, res) => {
   try {
     const { imageId } = req.params;
@@ -191,7 +186,6 @@ export const updateGallery = async (req, res) => {
     const image = painter.gallery.id(imageId);
     if (!image) return res.status(404).json({ message: "Image not found" });
 
-    // Update description
     image.description = description || image.description;
     await painter.save();
 
@@ -201,30 +195,23 @@ export const updateGallery = async (req, res) => {
   }
 };
 
-// ✅ Delete gallery image (correct)
-// ✅ Delete gallery image (fixed)
+// ✅ Delete gallery image from Cloudinary
+
 export const deleteGalleryImage = async (req, res) => {
   try {
-    const { id } = req.params; // ✅ match router param
+    const { id } = req.params;
 
     const painter = await Painter.findById(req.painter._id);
-    if (!painter) {
-      return res.status(404).json({ message: "Painter not found" });
-    }
+    if (!painter) return res.status(404).json({ message: "Painter not found" });
 
     const imageDoc = painter.gallery.id(id);
-    if (!imageDoc) {
-      return res.status(404).json({ message: "Image not found" });
-    }
+    if (!imageDoc) return res.status(404).json({ message: "Image not found" });
 
-    // remove file from disk if exists
+    // Delete from Cloudinary if URL exists
     if (imageDoc.image) {
-      const relativePath = imageDoc.image.replace(/^\//, "");
-      const absolutePath = path.join(__dirname, "..", relativePath);
-
-      if (fs.existsSync(absolutePath)) {
-        fs.unlinkSync(absolutePath);
-      }
+      // Extract public_id from Cloudinary URL
+      const publicId = imageDoc.image.split("/").slice(-1)[0].split(".")[0];
+      await cloudinary.uploader.destroy(`painterApp/painters/gallery/${publicId}`);
     }
 
     imageDoc.deleteOne();
@@ -241,7 +228,6 @@ export const deleteGalleryImage = async (req, res) => {
 };
 
 
-
 /* ---------- Bookings ---------- */
 
 // ✅ Public: fetch painters for main page
@@ -251,7 +237,6 @@ export const getAllPainters = async (req, res) => {
     const { phone, city, name } = req.query;
     const query = {};
 
-    // ✅ use phoneNumber field in DB but keep req.query.phone
     if (phone) query.phoneNumber = { $regex: phone, $options: "i" };
     if (city) query.city = { $regex: city, $options: "i" };
     if (name) query.name = { $regex: name, $options: "i" };
@@ -264,8 +249,12 @@ export const getAllPainters = async (req, res) => {
       bio: p.bio,
       city: p.city,
       phoneNumber: p.phoneNumber,
-      profileImage: p.profileImage,
-      galleryPreview: p.gallery.slice(0, 2),
+      profileImage: p.profileImage
+        ? p.profileImage.startsWith("http")
+          ? p.profileImage // already full URL (Cloudinary, etc.)
+          : `${req.protocol}://${req.get("host")}/uploads/profileImages/${p.profileImage}`
+        : null,
+      galleryPreview: p.gallery ? p.gallery.slice(0, 2) : [],
     }));
 
     res.json(result);
@@ -274,6 +263,7 @@ export const getAllPainters = async (req, res) => {
     res.status(500).json({ message: "Server error: " + err.message });
   }
 };
+
 
 // Get full painter details (profile + gallery)
 export const getPainterById = async (req, res) => {
@@ -380,21 +370,24 @@ export const painterLogout = async (req, res) => {
   }
 };
 
-// ✅ Search painters by phone, city, or name
+// Search painter by phone number
 export const searchPainters = async (req, res) => {
-  const { phone, city } = req.query;
-
   try {
-    const query = {};
+    const { phoneNumber } = req.query;
 
-    if (phone) query.phoneNumber = phone; // ✅ matches your schema
-    if (city) query.city = { $regex: city, $options: "i" }; // case-insensitive search
+    if (!phoneNumber) {
+      return res.status(400).json({ message: "Phone number is required" });
+    }
 
-    const painters = await Painter.find(query);
+    const painter = await Painter.findOne({ phone: phoneNumber });
 
-    res.json(painters);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    if (!painter) {
+      return res.status(404).json({ message: "Painter not found" });
+    }
+
+    // ✅ Return only one painter object
+    res.status(200).json(painter);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

@@ -1,23 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, Calendar, Paintbrush, Home } from "lucide-react";
 import Lottie from "lottie-react";
 import axios from "axios";
 import API from "../api/axiosConfig";
-import { useNavigate } from "react-router-dom";
 import heroAnimation from "../assets/hero-painter.json";
+import SearchPainter from "../components/SearchPainter";
 
 const HomePage = () => {
   const [painters, setPainters] = useState([]);
-  const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
   const navigate = useNavigate();
 
-  // Section refs for smooth scroll
+  // Section refs
   const heroRef = useRef(null);
   const searchRef = useRef(null);
   const featuredRef = useRef(null);
@@ -25,13 +21,30 @@ const HomePage = () => {
 
   const scrollToSection = (ref) => {
     ref.current.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false); // close menu on mobile after click
+    setMenuOpen(false);
   };
+
+  // ✅ Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100%";
+    } else {
+      document.body.style.overflow = "auto";
+      document.body.style.height = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+      document.body.style.height = "auto";
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const fetchPainters = async () => {
       try {
-        const res = await axios.get("https://painter-backend-inky.vercel.app/api/painter/main");
+        const res = await axios.get(
+          "https://painter-backend-inky.vercel.app/api/painter/main"
+        );
         setPainters(res.data);
       } catch (err) {
         console.error("❌ Failed to load painters:", err.message);
@@ -39,31 +52,6 @@ const HomePage = () => {
     };
     fetchPainters();
   }, []);
-
-const handleSearch = async () => {
-  if (!phone && !city) return; // prevent empty search
-
-  try {
-    setLoading(true);
-    setSearchResults([]); // clear previous results
-
-    const params = {};
-    if (phone) params.phoneNumber = phone; // matches schema
-    if (city) params.city = city;
-
-    const { data } = await API.get("/painters/search", { params });
-
-    setSearchResults(data); // data will be [] if no results
-  } catch (err) {
-    console.error("Search failed:", err);
-    setSearchResults([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
 
   const colors = {
     primary: "#ec4899",
@@ -82,160 +70,210 @@ const handleSearch = async () => {
         fontFamily: "'Poppins', sans-serif",
       }}
     >
-      {/* Navigation */}
-      {/* Navigation */}
-<nav
-  style={{
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    backgroundColor: "#fff",
-    zIndex: 1000,
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-  }}
->
-  <div
-    style={{
-      maxWidth: "1200px",
-      margin: "0 auto",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "1rem",
-    }}
-  >
-    <h1
-      style={{
-        fontWeight: "bold",
-        color: colors.primary,
-        cursor: "pointer",
-      }}
-      onClick={() => scrollToSection(heroRef)}
-    >
-      PainterBooking
-    </h1>
-
-    {/* Desktop Menu */}
-    <div
-      className="nav-links"
-      style={{
-        display: "flex",
-        gap: "1.5rem",
-        alignItems: "center",
-      }}
-    >
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(heroRef)}>Home</span>
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(searchRef)}>Search</span>
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(featuredRef)}>Featured</span>
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(howRef)}>How It Works</span>
-      <span style={{ cursor: "pointer" }} onClick={() => navigate("/contact")}>Contact</span>
-
-      <button
-        onClick={() => navigate("/login-choice")}
+      {/* ✅ Navigation */}
+      <nav
         style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: colors.primary,
-          color: "#fff",
-          borderRadius: "0.5rem",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          backgroundColor: "#fff",
+          zIndex: 1000,
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
         }}
       >
-        Login
-      </button>
-      <button
-        onClick={() => navigate("/signup-choice")}
-        style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: colors.secondary,
-          color: "#fff",
-          borderRadius: "0.5rem",
-        }}
-      >
-        Signup
-      </button>
-    </div>
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "0.8rem 1.5rem",
+            height: "70px",
+          }}
+        >
+          {/* ✅ Brand Name Only (Animated Gradient Text) */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              cursor: "pointer",
+            }}
+            onClick={() => scrollToSection(heroRef)}
+          >
+            ff painter&apos;s
+          </motion.div>
 
-    {/* Hamburger (visible on mobile) */}
-    <button
-      className="hamburger"
-      style={{
-        display: "none",
-        fontSize: "1.5rem",
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-      }}
-      onClick={() => setMenuOpen(!menuOpen)}
-    >
-      ☰
-    </button>
-  </div>
+          {/* Desktop Menu */}
+          <div
+            className="nav-links"
+            style={{
+              display: "flex",
+              gap: "1.5rem",
+              alignItems: "center",
+            }}
+          >
+            <span onClick={() => scrollToSection(heroRef)}>Home</span>
+            <span onClick={() => scrollToSection(searchRef)}>Search</span>
+            <span onClick={() => scrollToSection(featuredRef)}>Featured</span>
+            <span onClick={() => scrollToSection(howRef)}>How It Works</span>
+            <span onClick={() => navigate("/contact")}>Contact</span>
 
-  {/* ✅ Mobile Menu (absolute overlay, no unwanted space) */}
-  {menuOpen && (
-    <div
-      className="mobile-menu"
-      style={{
-        position: "absolute",
-        top: "100%",
-        left: 0,
-        width: "100%",
-        backgroundColor: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        padding: "1rem",
-        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-      }}
-    >
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(heroRef)}>Home</span>
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(searchRef)}>Search</span>
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(featuredRef)}>Featured</span>
-      <span style={{ cursor: "pointer" }} onClick={() => scrollToSection(howRef)}>How It Works</span>
-      <span style={{ cursor: "pointer" }} onClick={() => navigate("/contact")}>Contact</span>
+            <button
+              onClick={() => navigate("/login-choice")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: colors.primary,
+                color: "#fff",
+                borderRadius: "0.5rem",
+                border: "none",
+              }}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => navigate("/signup-choice")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: colors.secondary,
+                color: "#fff",
+                borderRadius: "0.5rem",
+                border: "none",
+              }}
+            >
+              Signup
+            </button>
+          </div>
 
-      <button
-        onClick={() => navigate("/login-choice")}
-        style={{
-          marginTop: "1rem",
-          padding: "0.5rem 1rem",
-          backgroundColor: colors.primary,
-          color: "#fff",
-          borderRadius: "0.5rem",
-        }}
-      >
-        Login
-      </button>
-      <button
-        onClick={() => navigate("/signup-choice")}
-        style={{
-          marginTop: "0.5rem",
-          padding: "0.5rem 1rem",
-          backgroundColor: colors.secondary,
-          color: "#fff",
-          borderRadius: "0.5rem",
-        }}
-      >
-        Signup
-      </button>
-    </div>
-  )}
+          {/* Hamburger Button */}
+          <button
+            className="hamburger"
+            style={{
+              display: "none",
+              fontSize: "1.8rem",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            ☰
+          </button>
+        </div>
 
-  {/* Inline CSS for responsiveness */}
-  <style>
-    {`
-      @media (max-width: 768px) {
-        .nav-links {
-          display: none !important;
-        }
-        .hamburger {
-          display: block !important;
-        }
-      }
-    `}
-  </style>
-</nav>
-      
-      {/* Hero Section */}
+        {/* Mobile Overlay */}
+        {menuOpen && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "rgba(0,0,0,0.4)",
+              zIndex: 1500,
+            }}
+            onClick={() => setMenuOpen(false)}
+          />
+        )}
+
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "75%",
+              backgroundColor: "#fff",
+              display: "flex",
+              flexDirection: "column",
+              padding: "2rem 1rem",
+              boxShadow: "-2px 0 6px rgba(0,0,0,0.1)",
+              zIndex: 2000,
+              overflowY: "auto",
+            }}
+          >
+            {/* Close Button */}
+            <button
+              style={{
+                alignSelf: "flex-end",
+                fontSize: "1.5rem",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                marginBottom: "1.5rem",
+              }}
+              onClick={() => setMenuOpen(false)}
+            >
+              ✖
+            </button>
+            <span onClick={() => scrollToSection(heroRef)}>Home</span>
+            <span onClick={() => scrollToSection(searchRef)}>Search</span>
+            <span onClick={() => scrollToSection(featuredRef)}>Featured</span>
+            <span onClick={() => scrollToSection(howRef)}>How It Works</span>
+            <span onClick={() => navigate("/contact")}>Contact</span>
+
+            <button
+              onClick={() => {
+                navigate("/login-choice");
+                setMenuOpen(false);
+              }}
+              style={{
+                marginTop: "2rem",
+                padding: "0.75rem 1rem",
+                backgroundColor: colors.primary,
+                color: "#fff",
+                borderRadius: "0.5rem",
+                border: "none",
+              }}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => {
+                navigate("/signup-choice");
+                setMenuOpen(false);
+              }}
+              style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem 1rem",
+                backgroundColor: colors.secondary,
+                color: "#fff",
+                borderRadius: "0.5rem",
+                border: "none",
+              }}
+            >
+              Signup
+            </button>
+          </motion.div>
+        )}
+
+        {/* Responsive Styles */}
+        <style>
+          {`
+            nav span {
+              cursor: pointer;
+              margin: 0.5rem 0;
+            }
+            @media (max-width: 768px) {
+              .nav-links { display: none !important; }
+              .hamburger { display: block !important; }
+            }
+          `}
+        </style>
+      </nav>
+
+      {/* ✅ Hero Section */}
       <section
         ref={heroRef}
         style={{
@@ -263,149 +301,85 @@ const handleSearch = async () => {
           }}
         />
 
-  {/* Foreground Content */}
-  <motion.div
-    initial={{ opacity: 0, y: 50 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 1 }}
-    style={{
-      position: "relative",
-      zIndex: 1,
-      textAlign: "center",
-      color: "#fff",
-      padding: "0 1.5rem",
-      maxWidth: "900px",
-    }}
-  >
-    <h1
-      style={{
-        fontSize: "2.75rem",
-        fontWeight: "bold",
-        marginBottom: "1rem",
-        lineHeight: 1.2,
-        textShadow: "0px 2px 10px rgba(0,0,0,0.6)",
-      }}
-    >
-      Find the Best Painters for Your Home & Office
-    </h1>
-    <p
-      style={{
-        fontSize: "1.25rem",
-        marginBottom: "2rem",
-        textShadow: "0px 2px 8px rgba(0,0,0,0.5)",
-      }}
-    >
-      Book trusted painters with just a few clicks. Browse profiles, check reviews, and hire instantly.
-    </p>
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      style={{
-        background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`,
-        color: "#fff",
-        padding: "0.75rem 2rem",
-        fontSize: "1rem",
-        fontWeight: 600,
-        borderRadius: "1rem",
-        border: "none",
-        cursor: "pointer",
-        boxShadow: "0 6px 15px rgba(0,0,0,0.3)",
-      }}
-      onClick={() => scrollToSection(featuredRef)}
-    >
-      Find Painters
-    </motion.button>
-  </motion.div>
-</section>
-
-
-      {/* Search Section */}
-      <section
-        style={{
-          padding: "2.5rem 2rem",
-          backgroundColor: colors.cardBg,
-          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-        }}
-      >
-        <div
+        {/* Foreground Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
           style={{
-            maxWidth: "1024px",
-            margin: "0 auto",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "1rem",
+            position: "relative",
+            zIndex: 1,
+            textAlign: "center",
+            color: "#fff",
+            padding: "0 1.5rem",
+            maxWidth: "900px",
           }}
         >
-          {/* Search by Phone */}
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Enter phone number..."
+          <h1
             style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "0.5rem",
-              border: "1px solid #d1d5db",
-              outline: "none",
-              color: colors.textDark,
+              fontSize: "2.75rem",
+              fontWeight: "bold",
+              marginBottom: "1rem",
+              lineHeight: 1.2,
+              textShadow: "0px 2px 10px rgba(0,0,0,0.6)",
             }}
-          />
-
-          {/* Search by City */}
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Enter city..."
+          >
+            Find the Best Painters for Your Home & Office
+          </h1>
+          <p
             style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "0.5rem",
-              border: "1px solid #d1d5db",
-              outline: "none",
-              color: colors.textDark,
+              fontSize: "1.25rem",
+              marginBottom: "2rem",
+              textShadow: "0px 2px 8px rgba(0,0,0,0.5)",
             }}
-          />
-
-          {/* Search Button */}
-<button
-  style={{
-    backgroundColor: colors.primary,
-    color: "#fff",
-    padding: "0.75rem 1.5rem",
-    borderRadius: "0.5rem",
-    cursor: "pointer",
-  }}
-  onClick={handleSearch}
->
-  {loading ? "Searching..." : "Search"}
-</button>
-
-        </div>
+          >
+            Book trusted painters with just a few clicks. Browse profiles, check
+            reviews, and hire instantly.
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            style={{
+              background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`,
+              color: "#fff",
+              padding: "0.75rem 2rem",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderRadius: "1rem",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 6px 15px rgba(0,0,0,0.3)",
+            }}
+            onClick={() => scrollToSection(featuredRef)}
+          >
+            Find Painters
+          </motion.button>
+        </motion.div>
       </section>
 
-      {/* Search Results Section */}
-      {searchResults.length > 0 && (
-        <section style={{ padding: "3rem 2rem", backgroundColor: colors.background }}>
-          <h2
-            style={{
-              textAlign: "center",
-              fontSize: "1.5rem",
-              fontWeight: "bold",
-              marginBottom: "2rem",
-            }}
-          >
-            🔍 Search Results
-          </h2>
+      {/* ✅ Search Section */}
+      <SearchPainter colors={colors} />
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "2rem",
-            }}
-          >
-            {searchResults.map((p) => (
+      {/* ✅ Featured Painters */}
+      <section ref={featuredRef} style={{ padding: "4rem 2rem" }}>
+        <h2
+          style={{
+            textAlign: "center",
+            fontSize: "1.75rem",
+            fontWeight: "bold",
+            marginBottom: "2.5rem",
+          }}
+        >
+          Featured Painters
+        </h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "2rem",
+          }}
+        >
+          {painters.length > 0 ? (
+            painters.map((p) => (
               <motion.div
                 key={p._id}
                 whileHover={{ scale: 1.05 }}
@@ -418,11 +392,7 @@ const handleSearch = async () => {
                 }}
               >
                 <img
-                  src={
-                    p.profileImage
-                      ? `https://painter-backend-inky.vercel.app/uploads/profileImages/${p.profileImage}`
-                      : "https://via.placeholder.com/150"
-                  }
+                  src={p.profileImage || "/default-avatar.png"}
                   alt={p.name}
                   style={{
                     width: "6rem",
@@ -432,16 +402,24 @@ const handleSearch = async () => {
                     objectFit: "cover",
                   }}
                 />
-                <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
-                <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
+                <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>
+                  {p.name}
+                </h3>
+                <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>
+                  {p.city}
+                </p>
                 <p
                   style={{
                     fontSize: "0.75rem",
                     marginTop: "0.5rem",
                     color: colors.textMuted,
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
                   }}
                 >
-                  {p.bio || "No bio available"}
+                  {p.bio}
                 </p>
                 <button
                   onClick={() => navigate(`/painters/${p._id}`)}
@@ -457,45 +435,84 @@ const handleSearch = async () => {
                   View Profile
                 </button>
               </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* No Results Message */}
-      {searchResults.length === 0 && (phone || city) && !loading && (
-  <p style={{ textAlign: "center", marginTop: "2rem" }}>No painters found.</p>
-)}
-
-
-
-
-
-
-      {/* Featured Painters */}
-      <section ref={featuredRef} style={{ padding: "4rem 2rem" }}>
-        <h2 style={{ textAlign: "center", fontSize: "1.75rem", fontWeight: "bold", marginBottom: "2.5rem" }}>Featured Painters</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
-          {painters.length > 0 ? painters.map((p) => (
-            <motion.div key={p._id} whileHover={{ scale: 1.05 }} style={{ backgroundColor: colors.cardBg, borderRadius: "1rem", padding: "1.5rem", textAlign: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-              <img src={`https://painter-backend-inky.vercel.app/uploads/profileImages/${p.profileImage}`} alt={p.name} style={{ width: "6rem", height: "6rem", borderRadius: "50%", margin: "0 auto 1rem", objectFit: "cover" }} />
-              <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{p.name}</h3>
-              <p style={{ fontSize: "0.875rem", color: colors.textMuted }}>{p.city}</p>
-              <p style={{ fontSize: "0.75rem", marginTop: "0.5rem", color: colors.textMuted, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{p.bio}</p>
-              <button onClick={() => navigate(`/painters/${p._id}`)} style={{ marginTop: "1rem", backgroundColor: colors.secondary, color: "#fff", padding: "0.5rem 1rem", borderRadius: "0.5rem", cursor: "pointer" }}>View Profile</button>
-            </motion.div>
-          )) : <p style={{ textAlign: "center", color: colors.textMuted }}>No featured painters found.</p>}
+            ))
+          ) : (
+            <p style={{ textAlign: "center", color: colors.textMuted }}>
+              No featured painters found.
+            </p>
+          )}
         </div>
       </section>
 
-      {/* How It Works */}
-      <section ref={howRef} style={{ padding: "4rem 2rem", backgroundColor: colors.background, textAlign: "center" }}>
-        <h2 style={{ fontSize: "1.75rem", fontWeight: "bold", marginBottom: "2.5rem" }}>How It Works</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "2rem" }}>
-          <div><Search style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} /><h4 style={{ fontWeight: 600 }}>Browse Painters</h4></div>
-          <div><Calendar style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} /><h4 style={{ fontWeight: 600 }}>Book Instantly</h4></div>
-          <div><Paintbrush style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} /><h4 style={{ fontWeight: 600 }}>Get Painted</h4></div>
-          <div><Home style={{ width: 48, height: 48, color: colors.primary, margin: "0 auto 1rem" }} /><h4 style={{ fontWeight: 600 }}>Enjoy Your Home</h4></div>
+      {/* ✅ How It Works */}
+      <section
+        ref={howRef}
+        style={{
+          padding: "4rem 2rem",
+          backgroundColor: colors.background,
+          textAlign: "center",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "1.75rem",
+            fontWeight: "bold",
+            marginBottom: "2.5rem",
+          }}
+        >
+          How It Works
+        </h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gap: "2rem",
+          }}
+        >
+          <div>
+            <Search
+              style={{
+                width: 48,
+                height: 48,
+                color: colors.primary,
+                margin: "0 auto 1rem",
+              }}
+            />
+            <h4 style={{ fontWeight: 600 }}>Browse Painters</h4>
+          </div>
+          <div>
+            <Calendar
+              style={{
+                width: 48,
+                height: 48,
+                color: colors.primary,
+                margin: "0 auto 1rem",
+              }}
+            />
+            <h4 style={{ fontWeight: 600 }}>Book Instantly</h4>
+          </div>
+          <div>
+            <Paintbrush
+              style={{
+                width: 48,
+                height: 48,
+                color: colors.primary,
+                margin: "0 auto 1rem",
+              }}
+            />
+            <h4 style={{ fontWeight: 600 }}>Get Painted</h4>
+          </div>
+          <div>
+            <Home
+              style={{
+                width: 48,
+                height: 48,
+                color: colors.primary,
+                margin: "0 auto 1rem",
+              }}
+            />
+            <h4 style={{ fontWeight: 600 }}>Enjoy Your Home</h4>
+          </div>
         </div>
       </section>
 
@@ -534,9 +551,11 @@ const handleSearch = async () => {
     >
       <h3 style={{ fontWeight: "600", marginBottom: "1rem" }}>Remain Links</h3>
       <ul style={{ display: "flex", flexDirection: "column", gap: "0.5rem", fontSize: "0.9rem" }}>
-        <li><a href="/about" style={{ color: "#fff", cursor: "pointer" }}>About</a>
+        <li>
+  <Link to="/about" style={{ color: "#fff", cursor: "pointer" }}>About</Link>
 </li>
-        <li><a href="/contact" style={{ color: "#fff", cursor: "pointer" }}>Contact</a>
+        <li>
+  <Link to="/contact" style={{ color: "#fff", cursor: "pointer" }}>Contact</Link>
 </li>
         <li><a href="#" style={{ color: "#fff" }}>Privacy Policy</a></li>
       </ul>

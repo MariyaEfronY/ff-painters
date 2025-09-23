@@ -18,7 +18,9 @@ const PainterDetails = () => {
   useEffect(() => {
     const fetchPainter = async () => {
       try {
-        const res = await axios.get(`https://painter-backend-inky.vercel.app/api/painter/${id}`);
+        const res = await axios.get(
+          `https://painter-backend-inky.vercel.app/api/painter/${id}`
+        );
         setPainter(res.data);
       } catch (err) {
         console.error("❌ Failed to load painter:", err.message);
@@ -27,7 +29,18 @@ const PainterDetails = () => {
     fetchPainter();
   }, [id]);
 
-  if (!painter) return <p style={{ textAlign: "center", marginTop: "2.5rem", color: colors.textDark }}>Loading...</p>;
+  if (!painter)
+    return (
+      <p
+        style={{
+          textAlign: "center",
+          marginTop: "2.5rem",
+          color: colors.textDark,
+        }}
+      >
+        Loading...
+      </p>
+    );
 
   const handleBooking = () => {
     const token = localStorage.getItem("userToken");
@@ -41,47 +54,97 @@ const PainterDetails = () => {
   };
 
   return (
-    <div style={{ padding: "1.5rem", maxWidth: "768px", margin: "0 auto", backgroundColor: colors.background, color: colors.textDark }}>
-      <div style={{ textAlign: "center" }}>
+    <div
+      style={{
+        padding: "1.5rem",
+        maxWidth: "900px",
+        margin: "0 auto",
+        backgroundColor: colors.background,
+        color: colors.textDark,
+      }}
+    >
+      {/* Profile Section */}
+<div style={{ textAlign: "center" }}>
+  <img
+    src={painter.profileImage || "/default-avatar.png"}
+    alt={painter.name}
+    style={{
+      width: "120px",          // smaller profile image
+      height: "120px",
+      borderRadius: "50%",
+      margin: "0 auto",
+      border: "3px solid #ddd",
+      objectFit: "cover",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    }}
+  />
+  <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginTop: "0.8rem" }}>
+    {painter.name}
+  </h1>
+  <p style={{ color: "#555", fontSize: "0.9rem" }}>📍 {painter.city}</p>
+  <p style={{ marginTop: "0.5rem", fontSize: "0.85rem", lineHeight: "1.4", color: "#333" }}>
+    {painter.bio}
+  </p>
+</div>
+
+{/* Gallery Section */}
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", // smaller card width
+    gap: "1rem",
+  }}
+>
+  {painter.gallery?.length > 0 ? (
+    painter.gallery.map((img, index) => (
+      <div
+        key={index}
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: "0.75rem",
+          boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
+          overflow: "hidden",
+          transition: "transform 0.2s ease-in-out",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+      >
         <img
-          src={`https://painter-backend-inky.vercel.app/uploads/profileImages/${painter.profileImage}`}
-          alt={painter.name}
-          style={{ width: "180px", height: "180px", borderRadius: "50%", margin: "0 auto", border: "4px solid #ddd", objectFit: "cover", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}
+          src={img.image}
+          alt={img.description || "Project image"}
+          style={{
+            width: "100%",
+            height: "150px", // reduced height
+            objectFit: "cover",
+          }}
         />
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginTop: "1rem" }}>Name: {painter.name}</h1>
-        <p style={{ color: "#555" }}>City: {painter.city}</p>
-        <p style={{ marginTop: "0.5rem" }}>Bio: {painter.bio}</p>
+        <div style={{ padding: "0.5rem" }}>
+          <p style={{ fontSize: "0.8rem", color: "#444", lineHeight: "1.3" }}>
+            {img.description || "No description provided."}
+          </p>
+        </div>
       </div>
+    ))
+  ) : (
+    <p style={{ color: "#777" }}>No projects uploaded yet.</p>
+  )}
+</div>
 
-      <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginTop: "1.5rem" }}>Projects</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "0.75rem", marginTop: "0.75rem" }}>
-        {painter.gallery?.length > 0 ? (
-          painter.gallery.map((img, index) => (
-            <div key={index} style={{ backgroundColor: "#fff", padding: "0.5rem", borderRadius: "0.5rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-              <img
-                src={`https://painter-backend-inky.vercel.app${img.image}`}
-                alt={img.description || "Project image"}
-                style={{ width: "100%", borderRadius: "0.3rem" }}
-              />
-              <p style={{ fontSize: "0.75rem", color: "#555", marginTop: "0.25rem" }}>{img.description}</p>
-            </div>
-          ))
-        ) : (
-          <p style={{ color: "#777" }}>No projects uploaded yet.</p>
-        )}
-      </div>
 
+      {/* Booking Button */}
       <button
         onClick={handleBooking}
         style={{
-          marginTop: "1.5rem",
+          marginTop: "2rem",
           width: "100%",
-          padding: "0.75rem",
+          padding: "0.9rem",
           backgroundColor: colors.primary,
           color: "#fff",
-          borderRadius: "0.5rem",
+          border: "none",
+          borderRadius: "0.6rem",
           cursor: "pointer",
-          fontWeight: 600,
+          fontWeight: "600",
+          fontSize: "1rem",
         }}
       >
         Book Painter

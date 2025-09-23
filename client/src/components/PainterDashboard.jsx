@@ -94,10 +94,11 @@ const profileImageUrl = profile?.profileImage || null;
           
 {profileImageUrl ? (
   <img
-  src={profileImageUrl}  // ✅ will now be Cloudinary URL
+  src={profile.profileImage}
   alt="Profile"
   className="w-32 h-32 rounded-full border-2 border-gray-200 object-cover"
 />
+
 ) : (
   <div className="w-32 h-32 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400">
     No Image

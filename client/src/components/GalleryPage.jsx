@@ -89,10 +89,11 @@ const GalleryPage = () => {
               className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition flex flex-col"
             >
               <img
-                src={`https://painter-backend-inky.vercel.app${item.image}`}
-                alt="Gallery"
-                className="w-full h-48 object-cover"
-              />
+  src={item.image}   // ✅ Cloudinary URL directly
+  alt={item.description || "Gallery"}
+  className="w-full h-48 object-cover"
+/>
+
 
               <div className="p-4 flex-1 flex flex-col justify-between">
                 {editId === item._id ? (
