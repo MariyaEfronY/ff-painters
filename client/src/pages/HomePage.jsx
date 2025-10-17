@@ -628,7 +628,7 @@ const HomePage = () => {
       color: "#ddd",
     }}
   >
-    © {new Date().getFullYear()} PainterBooking. All rights reserved. 🌟
+    © {new Date().getFullYear()} FF Painters. All rights reserved. 🌟
   </motion.div>
 </footer>
 
